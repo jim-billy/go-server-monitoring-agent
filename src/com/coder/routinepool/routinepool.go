@@ -234,36 +234,6 @@ func (workRoutine *WorkRoutine) endJobTime() {
 	}
 }
 
-
-
-/*
-func (routinePool *RoutinePool) measureTimeTaken() {
-	start := time.Now()
-	noOfJobsCompleted := 0
-	prevJobsCompletedValueLogged := 0
-	periodicLoggingOfJobsCompletedStartTime := time.Now()
-	for {
-		//routinePool.poolConfig.RoutinePoolLogger.Infof(routinePool.poolConfig.RoutinePoolName+", $$$$$$$$$$$$$$$$$$ Starting routine for calculating time taken $$$$$$$$$$$$$$$$$$$$$$$$")
-        select {
-        	case shutdown := <-routinePool.shutdownChannel:
-	            routinePool.poolConfig.RoutinePoolLogger.Infof(routinePool.poolConfig.RoutinePoolName+", measureTimeTaken worker : Shutdown received : ", shutdown)
-	            break
-	        case job := <- routinePool.completedJobsChannel:
-	        	noOfJobsCompleted+=1
-	        	//routinePool.poolConfig.RoutinePoolLogger.Infof(routinePool.poolConfig.RoutinePoolName+", Completed jobs : "+strconv.Itoa(noOfJobsCompleted),job)
-	        	if (noOfJobsCompleted - prevJobsCompletedValueLogged) >= routinePool.poolConfig.MeasureTimeTakenForJobSize{
-	        		fmt.Println(routinePool.poolConfig.RoutinePoolName+", ============================ TIME_TAKEN for job size : "+strconv.Itoa(noOfJobsCompleted - prevJobsCompletedValueLogged)+" is "+time.Since(periodicLoggingOfJobsCompletedStartTime).String()+", Total jobs completed : "+strconv.Itoa(noOfJobsCompleted)+" in "+time.Since(start).String())
-	        		//Reset values
-	        		prevJobsCompletedValueLogged = noOfJobsCompleted
-	        		periodicLoggingOfJobsCompletedStartTime = time.Now()
-	        		
-	        	}
-	        	routinePool.resultChannel <- job
-        }
-    }
-	    
-}
-*/
 func (routinePool *RoutinePool) GetStats() {
 	routinePool.log("QueuedWork : "+strconv.Itoa(int(routinePool.GetQueuedWork())))
 	routinePool.log("ActiveRoutines : "+strconv.Itoa(int(routinePool.GetActiveRoutines())))

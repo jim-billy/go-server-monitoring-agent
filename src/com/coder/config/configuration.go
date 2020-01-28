@@ -43,19 +43,7 @@ func (configLoader *ConfigLoader) LoadBytesFromJson(filePath string) ([]byte, er
     
     byteArr, errToReturn = ioutil.ReadAll(jsonFile)
     return byteArr, errToReturn
-    /*
-    var linuxMonitor []collector.LinuxMonitor
-	json.Unmarshal(byteValue, &linuxMonitor)
-	fmt.Printf("linuxMonitor : %+v", linuxMonitor)
-	*/
-	/*
-    byteValue, _ := ioutil.ReadAll(jsonFile)
-
-    var result map[string]interface{}
-    json.Unmarshal([]byte(byteValue), &result)
-
-    fmt.Println("result : ",result)
-    */
+    
 }
 
 func GetConfigLoader() *ConfigLoader{
