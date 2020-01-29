@@ -15,11 +15,21 @@ import (
 	"github.com/chasex/glog"
 )
 
-const ROUTINE_POOL_SIZE = 5
-const QUEUE_CAPACITY = 100
-const JOB_THRESHOLD = 20
+const (
+	ROUTINE_POOL_SIZE = 5
+	QUEUE_CAPACITY = 100
+	JOB_THRESHOLD = 20	
+)
+
 
 var Logger *glog.Logger
+
+func init(){
+	fmt.Println("Init of routinepooltest")
+	runtime.GOMAXPROCS(3*runtime.NumCPU())
+	url.LoadWebsites("")
+	Logger = logging.GetLogger("agent", "/tmp", true)
+}
 
 type urlStatus struct {
 	url    string
@@ -60,14 +70,6 @@ func (websiteJob WebsiteJob) DoJob(routinePool *routinepool.RoutinePool) {
 
 func (websiteJob WebsiteJob) GetId() int{
     return websiteJob.Id
-}
-
-func init(){
-	fmt.Println("Init of routinepooltest")
-	runtime.GOMAXPROCS(3*runtime.NumCPU())
-	url.LoadWebsites("")
-	Logger = logging.GetLogger("agent", "/tmp", true)
-	//logging.FlushLog()
 }
 
 func main() {

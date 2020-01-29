@@ -263,7 +263,7 @@ func GetRoutinePool(routinePoolName string) *RoutinePool {
 
 func ShutdownRoutinePools() bool {
 	for name, routinePool := range routinePoolMap { 
-	    fmt.Printf("key[%s] value[%s]\n", name, routinePool)
+	    routinePool.log("Shutting down RoutinePool : "+name)
 	    close(routinePool.jobChannel)
 	    close(routinePool.shutdownChannel)
 	}

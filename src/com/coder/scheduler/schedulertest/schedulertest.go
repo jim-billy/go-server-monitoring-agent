@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+var Logger *glog.Logger
+
+func init(){
+	fmt.Println("Init of schedulertest")
+	runtime.GOMAXPROCS(3*runtime.NumCPU())
+	Logger = logging.GetLogger("schedulertest", "/tmp", true)
+}
+
 func testScheduler(){
 	var sched scheduler.Scheduler
 	var schTask scheduler.ScheduleTask
@@ -28,7 +36,7 @@ func testDataCollectionScheduler(){
 }
 
 func main(){
-	//testScheduler()
-	testDataCollectionScheduler()
+	testScheduler()
+	//testDataCollectionScheduler()
 	time.Sleep(1600 * time.Second)
 }

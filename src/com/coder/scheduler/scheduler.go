@@ -6,9 +6,12 @@ import(
 	"com/coder/routinepool"
 )
 
-const REPETITIVE_TASK="REPETITIVE_TASK"
-const ONE_TIME_TASK="ONE_TIME_TASK"
-const DEFAULT_NO_OF_WORKERS = 8
+const(
+	REPETITIVE_TASK="REPETITIVE_TASK"
+	ONE_TIME_TASK="ONE_TIME_TASK"
+	DEFAULT_NO_OF_WORKERS = 8
+	QUEUE_CAPACITY = 100
+)
 
 
 var schedulerMap map[string]Scheduler
@@ -58,7 +61,7 @@ func (schTask *ScheduleTask) GetJob() routinepool.Job{
 
 type Scheduler struct {  
 	name string
-	routinePool routinepool.RoutinePool
+	routinePool *routinepool.RoutinePool
 }
 
 func (sch *Scheduler) Schedule(schTask ScheduleTask){
@@ -90,23 +93,24 @@ func (sch *Scheduler) Schedule(schTask ScheduleTask){
 
 //Public methods
 
-func GetScheduler(schedulerName string) Scheduler {
-	var toReturn Scheduler
-	for name, Scheduler := range schedulerMap { 
+func GetScheduler(schedulerName string) *Scheduler {
+	var toReturn *Scheduler
+	for name, scheduler := range schedulerMap { 
 	    //fmt.Printf("key[%s] value[%s]\n", name, Scheduler)
 	    if name == schedulerName{
-	    	toReturn = Scheduler
+	    	toReturn = scheduler
 	    }
 	}
-	if(Scheduler{}) == toReturn {
+	if(scheduler == nil){
 		fmt.Println("Creating new scheduler : ", schedulerName)
 		config := routinepool.RoutinePoolConfig{
-			RoutinePoolName: "DataCollectionPool",
+			RoutinePoolName: "SchedulerDataCollectionPool",
 			RoutinePoolSize: DEFAULT_NO_OF_WORKERS,
-			MeasureTimeTakenForJobSize: 2,
-			
+			QueueCapacity: QUEUE_CAPACITY,
+			//Logger: Logger,
 		}
-		routinePool, err := routinepool.New(config)
+
+		routinePool, err := routinepool.NewRoutinePool(config)
 		if err != nil {
 			panic(err)
 			fmt.Println("Error while creating worker pool for the scheduler ..",schedulerName)
