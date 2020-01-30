@@ -82,7 +82,7 @@ func (collectorApi *CollectorApi) loadCollectorConfig(){
 func (collectorApi *CollectorApi) ScheduleDataCollection(){
 	fmt.Printf("POINTER :: The address of the received collectorApi in ScheduleDataCollection is: %p\n", collectorApi)
 	fmt.Println("Inside ScheduleDataCollection ============== ", collectorApi.LinuxMonitors)
-	var sched scheduler.Scheduler
+	var sched *scheduler.Scheduler
 	sched = scheduler.GetScheduler("DataCollectionScheduler")
 	for index, value := range collectorApi.LinuxMonitors {
 		linuxMonitor := collectorApi.LinuxMonitors[index]
@@ -92,13 +92,13 @@ func (collectorApi *CollectorApi) ScheduleDataCollection(){
 		schTask.SetName(linuxMonitor.Name)
 		schTask.SetType(scheduler.REPETITIVE_TASK)
 		schTask.SetInterval(linuxMonitor.Interval)
-		serverMonJob := ServerMonitoringJob{MonitorConfig : linuxMonitor, Id : "1"}
+		serverMonJob := &ServerMonitoringJob{MonitorConfig : linuxMonitor, Id : 1}
 		schTask.SetJob(serverMonJob)
 		sched.Schedule(schTask)
 	}
 }
 
-func (collectorApi *CollectorApi) ParseAndSave(serverMonJob ServerMonitoringJob){
+func (collectorApi *CollectorApi) ParseAndSave(serverMonJob *ServerMonitoringJob){
 	var collectedData *CollectedData
 	fmt.Println("===================== Is success : ",serverMonJob.ResultData.Result["is_success"],", Execution time : ",serverMonJob.ResultData.Result["execution_time"],", Output ",serverMonJob.ResultData.Result["output"],", Error : ",serverMonJob.ResultData.Result["error"])
 	collectedData = parserApi.parse(serverMonJob)
@@ -110,7 +110,7 @@ func (collectorApi *CollectorApi) getParseConfig(name string) (ParseConfiguratio
 	return metricNameVsParseConfigMap[name]
 }
 
-func (parserApi *ParserApi) parse(serverMonJob ServerMonitoringJob) *CollectedData{
+func (parserApi *ParserApi) parse(serverMonJob *ServerMonitoringJob) *CollectedData{
 	var collectedData *CollectedData
 	if(serverMonJob.MonitorConfig.KeyValue){
 		collectedData = parserApi.parseKeyValue(serverMonJob)
@@ -171,7 +171,7 @@ Output will be
 	
 */
 
-func (parserApi *ParserApi) parseKeyValue(serverMonJob ServerMonitoringJob) *CollectedData{
+func (parserApi *ParserApi) parseKeyValue(serverMonJob *ServerMonitoringJob) *CollectedData{
 	fmt.Println("============================== parseKeyValue ============================== ")
 	parseConfigArr := serverMonJob.MonitorConfig.ParseConfig
 	output := serverMonJob.ResultData.Result["output"].(string)
@@ -241,7 +241,7 @@ func (parserApi *ParserApi) parseKeyValue(serverMonJob ServerMonitoringJob) *Col
 		]	
 	
 */
-func (parserApi *ParserApi) parseAllLines(serverMonJob ServerMonitoringJob) *CollectedData{
+func (parserApi *ParserApi) parseAllLines(serverMonJob *ServerMonitoringJob) *CollectedData{
 	fmt.Println("============================== parseAllLines ============================== ")
 	parseConfigArr := serverMonJob.MonitorConfig.ParseConfig
 	output := serverMonJob.ResultData.Result["output"].(string)

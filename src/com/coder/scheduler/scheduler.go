@@ -14,10 +14,10 @@ const(
 )
 
 
-var schedulerMap map[string]Scheduler
+var schedulerMap map[string]*Scheduler
 
 func init(){
-	schedulerMap = make(map[string]Scheduler)
+	schedulerMap = make(map[string]*Scheduler)
 }
 
 type ScheduleTask struct {  
@@ -64,6 +64,14 @@ type Scheduler struct {
 	routinePool *routinepool.RoutinePool
 }
 
+func (sch *Scheduler) SetName(name string){
+	sch.name = name
+}
+
+func (sch *Scheduler) GetName() string{
+	return sch.name
+}
+
 func (sch *Scheduler) Schedule(schTask ScheduleTask){
 	if(schTask.taskType == REPETITIVE_TASK){
 		fmt.Println("REPETITIVE_TASK")
@@ -77,34 +85,39 @@ func (sch *Scheduler) Schedule(schTask ScheduleTask){
 	                return
 	            case t := <-ticker.C:
 					fmt.Println("============================ Sending the job to the worker : ", schTask.scheduleJob,t)
-					sch.routinePool.GetJobChannel() <- schTask.scheduleJob
+					sch.routinePool.ExecuteJob(schTask.scheduleJob)
 	            }
 	        }
 	    }()
 	}else if(schTask.taskType == ONE_TIME_TASK){
 		fmt.Println("ONE_TIME_TASK")
 		fmt.Println("============================ Sending the job to the worker : ", schTask.scheduleJob)
-		sch.routinePool.GetJobChannel() <- schTask.scheduleJob
+		sch.routinePool.ExecuteJob(schTask.scheduleJob)
 	}else{
 		fmt.Println("Unknown task type in the input ScheduleTask : ",schTask)
 	}
 	
 }
 
+func (sch *Scheduler) PerformanceStats(schedulerName string){
+	routinePool := routinepool.GetRoutinePool(schedulerName+"-RoutinePool")
+	routinePool.PerformanceStats()
+}
+
 //Public methods
 
 func GetScheduler(schedulerName string) *Scheduler {
-	var toReturn *Scheduler
+	var schToReturn *Scheduler
 	for name, scheduler := range schedulerMap { 
 	    //fmt.Printf("key[%s] value[%s]\n", name, Scheduler)
 	    if name == schedulerName{
-	    	toReturn = scheduler
+	    	schToReturn = scheduler
 	    }
 	}
-	if(scheduler == nil){
+	if(schToReturn == nil){
 		fmt.Println("Creating new scheduler : ", schedulerName)
 		config := routinepool.RoutinePoolConfig{
-			RoutinePoolName: "SchedulerDataCollectionPool",
+			RoutinePoolName: schedulerName+"-RoutinePool",
 			RoutinePoolSize: DEFAULT_NO_OF_WORKERS,
 			QueueCapacity: QUEUE_CAPACITY,
 			//Logger: Logger,
@@ -115,11 +128,12 @@ func GetScheduler(schedulerName string) *Scheduler {
 			panic(err)
 			fmt.Println("Error while creating worker pool for the scheduler ..",schedulerName)
 		}else{
-			toReturn.name = schedulerName
-			toReturn.routinePool = routinePool
+			schToReturn = new(Scheduler)
+			schToReturn.name = schedulerName
+			schToReturn.routinePool = routinePool
 		}
 	}
-	return toReturn
+	return schToReturn
 }
 
 

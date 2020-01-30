@@ -28,7 +28,8 @@ func init(){
 	fmt.Println("Init of routinepooltest")
 	runtime.GOMAXPROCS(3*runtime.NumCPU())
 	url.LoadWebsites("")
-	Logger = logging.GetLogger("agent", "/tmp", true)
+	Logger = logging.GetLogger("agent", "/tmp", true)//Third boolean parameter is for deleting existing logs
+	shutdown.GetShutdownHandler().Init(nil)
 }
 
 type urlStatus struct {
@@ -43,7 +44,7 @@ type WebsiteJob struct {
     ResultData *routinepool.JobResult
 }
 
-func (websiteJob WebsiteJob) DoJob(routinePool *routinepool.RoutinePool) {
+func (websiteJob *WebsiteJob) DoJob(routinePool *routinepool.RoutinePool) {
     fmt.Println("============================== DoJob : Collecting data for Website : %v \n", websiteJob.Website)
     //time.Sleep(time.Duration(rand.Intn(2)+1) * time.Second)
     time.Sleep(1 * time.Second)
@@ -68,7 +69,7 @@ func (websiteJob WebsiteJob) DoJob(routinePool *routinepool.RoutinePool) {
     
 }
 
-func (websiteJob WebsiteJob) GetId() int{
+func (websiteJob *WebsiteJob) GetId() int{
     return websiteJob.Id
 }
 
@@ -91,7 +92,7 @@ func routinePoolTest(){
 	}
 	
 	fmt.Printf("POINTER :: The address of the received routinePool in routinePoolTest : %p\n", routinePool)
-	go printRoutinePoolStats()
+	//go printRoutinePoolStats()
 	time.Sleep(1 * time.Second)
 	go sendWebsiteJobs()
 	//go sendShutdownSignal()
@@ -110,7 +111,7 @@ func sendWebsiteJobs(){
 			urlStr = "https://www."+url	
 		}
 		urlStr = "https://127.0.0.1/index.html"
-		websiteJob := WebsiteJob{Website : urlStr, Id : i}
+		websiteJob := &WebsiteJob{Website : urlStr, Id : i}
 		//logging.Logger.Infof("============================ Sending Job : %d %s \n", i,url)
 		fmt.Println("============================ Sending Job : ", i,url)
 		//fmt.Printf("POINTER :: The address of the received routinePool in sendWebsiteJobs : %p\n", routinePool)
@@ -126,7 +127,7 @@ func sendWebsiteJobs(){
 func printRoutinePoolStats(){
 	routinePool := routinepool.GetRoutinePool("DataCollectionPool")
 	for {
-	    routinePool.GetStats()
+	    routinePool.PerformanceStats()
 	    time.Sleep(1 * time.Second)
 	}
 }

@@ -182,10 +182,6 @@ func (workRoutine *WorkRoutine) run() {
 	WORK_ROUTINE_LABEL :
 	    for {
 	        select {
-	        	case shutdown := <-workRoutine.routinePool.shutdownChannel:
-		        	workRoutine.routinePool.log("Shutting down work routine : "+workRoutine.workRoutineName+" Shutdown received : "+ strconv.FormatBool(shutdown))
-		            //fmt.Println(workRoutine.routinePool.poolConfig.RoutinePoolName+", worker : "+strconv.Itoa(workRoutine)+" : Shutdown received : ", shutdown)
-		            break WORK_ROUTINE_LABEL
 		        case job := <- workRoutine.routinePool.jobChannel:
 			        //fmt.Printf("POINTER :: The address of the received routinePool in workRoutine : %p\n", routinePool)
 		        	//routinePool.poolConfig.RoutinePoolLogger.Infof(routinePool.poolConfig.RoutinePoolName+", worker : "+strconv.Itoa(workRoutine)+" : received message : ", job)
@@ -196,6 +192,10 @@ func (workRoutine *WorkRoutine) run() {
 		        	workRoutine.routinePool.log("workRoutine Id : : "+workRoutine.workRoutineName+", JobId : "+strconv.Itoa(job.GetId()))
 		        	workRoutine.safelyDoWork(job)
 		        	workRoutine.endJobTime()
+	        	case shutdown := <-workRoutine.routinePool.shutdownChannel:
+		        	workRoutine.routinePool.log("Shutting down work routine : "+workRoutine.workRoutineName+" Shutdown received : "+ strconv.FormatBool(shutdown))
+		            //fmt.Println(workRoutine.routinePool.poolConfig.RoutinePoolName+", worker : "+strconv.Itoa(workRoutine)+" : Shutdown received : ", shutdown)
+		            break WORK_ROUTINE_LABEL
 	        }
 	    }
 }
@@ -234,7 +234,7 @@ func (workRoutine *WorkRoutine) endJobTime() {
 	}
 }
 
-func (routinePool *RoutinePool) GetStats() {
+func (routinePool *RoutinePool) PerformanceStats() {
 	routinePool.log("QueuedWork : "+strconv.Itoa(int(routinePool.GetQueuedWork())))
 	routinePool.log("ActiveRoutines : "+strconv.Itoa(int(routinePool.GetActiveRoutines())))
 	
@@ -243,7 +243,8 @@ func (routinePool *RoutinePool) GetStats() {
 	}    
 }
 
-func (*RoutinePool) HandleShutdown() {
+func (routinePool *RoutinePool) HandleShutdown() {
+	routinePool.PerformanceStats()
 	ShutdownRoutinePools()
 }
 

@@ -7,6 +7,7 @@ import (
     "encoding/csv"
 	"io"
 	"fmt"
+	"os/user"
 )
 
 const TotalWebsitesCount = 500000
@@ -16,11 +17,19 @@ var websiteCounter int
 
 func LoadWebsites(fileToLoad string) {
     //csvFile, _ := os.Open("/tmp/url_list.csv")
-    defaultFile := "/tmp/top-1m.csv"
+    
+    usr, er := user.Current()
+    if er != nil {
+        fmt.Println("Error while fetching user : ", er )
+    }
+    userHome := usr.HomeDir
+    defaultFile := userHome+"/temp/top-1m.csv"
+    fmt.Println("Loading websites from the file : ", defaultFile)
     if fileToLoad == ""{
     	fileToLoad = defaultFile
     }
     csvFile, _ := os.Open(fileToLoad)
+    
     reader := csv.NewReader(bufio.NewReader(csvFile))
     
     for {
@@ -28,7 +37,7 @@ func LoadWebsites(fileToLoad string) {
         if error == io.EOF {
             break
         } else if error != nil {
-            fmt.Println("Error : ",error)
+            fmt.Println("Error loading websites : ",error)
         }
        	for i, website := range line {
        		if i == TotalWebsitesCount {
