@@ -25,13 +25,14 @@ func init(){
 	agentconstants.Initialize()
 	loadConfiguration()
 	runtime.GOMAXPROCS(3*runtime.NumCPU())
+	shutdown.GetShutdownHandler().Init(nil)
 }
 
 func initLogging(){
 	fmt.Println("=================== initLogging ============== ")
-	Logger = logging.GetLogger("agent", initializer.GetAgentLogDir())
-	ErrorUrlLogger = logging.GetLogger("error", initializer.GetAgentLogDir())
-	SuccessUrlLogger = logging.GetLogger("success", initializer.GetAgentLogDir())
+	Logger = logging.GetLogger("agent", initializer.GetAgentLogDir(), true)
+	ErrorUrlLogger = logging.GetLogger("error", initializer.GetAgentLogDir(), true)
+	SuccessUrlLogger = logging.GetLogger("success", initializer.GetAgentLogDir(), true)
 }
 
 func loadConfiguration(){
@@ -41,7 +42,7 @@ func loadConfiguration(){
 func main() {
 	util.SetLimit()
 	collector.GetCollectorApi().ScheduleDataCollection()
-	shutdown.ShutdownListener()
+	shutdown.Wait()
 }
 
 

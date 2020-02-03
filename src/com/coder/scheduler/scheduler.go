@@ -6,13 +6,14 @@ import(
 	"com/coder/routinepool"
 )
 
+type ScheduleTaskType int
+
 const(
-	REPETITIVE_TASK="REPETITIVE_TASK"
-	ONE_TIME_TASK="ONE_TIME_TASK"
+	ONE_TIME_TASK ScheduleTaskType = 1
+	REPETITIVE_TASK ScheduleTaskType = 2
 	DEFAULT_NO_OF_WORKERS = 8
 	QUEUE_CAPACITY = 100
 )
-
 
 var schedulerMap map[string]*Scheduler
 
@@ -20,9 +21,13 @@ func init(){
 	schedulerMap = make(map[string]*Scheduler)
 }
 
+func (taskType ScheduleTaskType) Get() ScheduleTaskType {
+	return taskType
+}
+
 type ScheduleTask struct {  
 	name string
-	taskType string
+	taskType ScheduleTaskType
 	interval int
 	scheduleJob routinepool.Job
 }
@@ -35,11 +40,11 @@ func (schTask *ScheduleTask) GetName() string{
 	return schTask.name
 }
 
-func (schTask *ScheduleTask) SetType(taskType string){
+func (schTask *ScheduleTask) SetType(taskType ScheduleTaskType){
 	schTask.taskType = taskType
 }
 
-func (schTask *ScheduleTask) GetType() string{
+func (schTask *ScheduleTask) GetType() ScheduleTaskType{
 	return schTask.taskType
 }
 

@@ -44,6 +44,7 @@ func (poolConfig RoutinePoolConfig) String() string {
 
 type RoutinePool struct {
 	poolConfig    RoutinePoolConfig
+	isRoutinePoolShutdown int32
 	shutdownChannel  	 chan bool //Channel used to shut down the work routines.
 	jobChannel           chan Job //Channel used to process the incoming jobs
 	completedJobsChannel chan Job
@@ -70,6 +71,7 @@ func NewRoutinePool(routinePoolConfig RoutinePoolConfig) (*RoutinePool, error){
 		activeRoutines:       0,
 		workRoutines:		  make(map[string]*WorkRoutine),
 	}
+	atomic.StoreInt32(&routinePool.isRoutinePoolShutdown, 0)
 	routinePoolMap[routinePoolConfig.RoutinePoolName] = routinePool
 	shutdown.AddListener(routinePool)
 	for i := 1; i <= routinePoolConfig.RoutinePoolSize; i++ {
@@ -96,6 +98,17 @@ func evaluateRoutinePoolConfig(routinePoolConfig RoutinePoolConfig) error{
 	return nil
 }
 
+func (routPool *RoutinePool) shutdown() {
+	atomic.StoreInt32(&routPool.isRoutinePoolShutdown, 1)
+}
+
+func (routPool *RoutinePool) isShutdown() bool{
+	if atomic.LoadInt32(&routPool.isRoutinePoolShutdown) != 0 {
+		return true
+	}
+	return false
+}
+
 func (routPool *RoutinePool) GetLogger() *glog.Logger{
 	return routPool.poolConfig.Logger
 }
@@ -111,6 +124,15 @@ func (routPool *RoutinePool) log(message string){
 }
 
 func (routPool *RoutinePool) ExecuteJob(job Job) bool{
+	if(job == nil){
+		routPool.log("RoutinePool : ExecuteJob : Job is nil. Hence returning.")
+		return false
+	}
+	fmt.Println("routPool.jobChannel :::::::::::::::::::::::::: ",routPool.jobChannel,routPool.isShutdown())
+	if(routPool.isShutdown()){
+		routPool.log("RoutinePool : ExecuteJob : RoutinePool is shutdown. Hence returning without executing job.")
+		return false
+	}
 	routPool.incrementQueuedWork()
 	routPool.jobChannel <- job
 	return true
@@ -175,7 +197,7 @@ func NewWorkRoutine(routinePool *RoutinePool, routineId int) *WorkRoutine{
 }
 
 func (workRoutine WorkRoutine) String() string {
-    return fmt.Sprintf("WorkRoutine : %s, Total jobs : %s, Max job time : %s, Min job time : %s", workRoutine.workRoutineName,strconv.Itoa(workRoutine.totalJobs),strconv.FormatInt(workRoutine.maxJobTime, 10),strconv.FormatInt(workRoutine.minJobTime,10))
+    return fmt.Sprintf("WorkRoutine : %s, Total jobs : %s, Max job time : %s ms, Min job time : %s ms", workRoutine.workRoutineName,strconv.Itoa(workRoutine.totalJobs),strconv.FormatInt(workRoutine.maxJobTime, 10),strconv.FormatInt(workRoutine.minJobTime,10))
 }
 
 func (workRoutine *WorkRoutine) run() {
@@ -183,10 +205,11 @@ func (workRoutine *WorkRoutine) run() {
 	    for {
 	        select {
 		        case job := <- workRoutine.routinePool.jobChannel:
-			        //fmt.Printf("POINTER :: The address of the received routinePool in workRoutine : %p\n", routinePool)
-		        	//routinePool.poolConfig.RoutinePoolLogger.Infof(routinePool.poolConfig.RoutinePoolName+", worker : "+strconv.Itoa(workRoutine)+" : received message : ", job)
-		        	//routinePool.poolConfig.RoutinePoolLogger.Infof("Routine "+routinePool.poolConfig.RoutinePoolName+" received message : "+msg1)
-		        	//fmt.Println("??????????????????????????????? workRoutine Id : ",strconv.Itoa(workRoutine),", JobId : ",strconv.Itoa(job.GetId()))
+		        	//job is nil when close(jobChannel) is invoked in ShutdownRoutinePools()
+		        	if(job == nil){
+		        		workRoutine.routinePool.log("workRoutine Id : : "+workRoutine.workRoutineName+", Job is nil. Hence returning.")
+		        		return
+		        	}
 		        	workRoutine.startJobTime()
 		        	workRoutine.incrementTotalJobs()
 		        	workRoutine.routinePool.log("workRoutine Id : : "+workRoutine.workRoutineName+", JobId : "+strconv.Itoa(job.GetId()))
@@ -194,7 +217,6 @@ func (workRoutine *WorkRoutine) run() {
 		        	workRoutine.endJobTime()
 	        	case shutdown := <-workRoutine.routinePool.shutdownChannel:
 		        	workRoutine.routinePool.log("Shutting down work routine : "+workRoutine.workRoutineName+" Shutdown received : "+ strconv.FormatBool(shutdown))
-		            //fmt.Println(workRoutine.routinePool.poolConfig.RoutinePoolName+", worker : "+strconv.Itoa(workRoutine)+" : Shutdown received : ", shutdown)
 		            break WORK_ROUTINE_LABEL
 	        }
 	    }
@@ -252,21 +274,25 @@ func (routinePool *RoutinePool) HandleShutdown() {
 
 func GetRoutinePool(routinePoolName string) *RoutinePool {
 	var toReturn *RoutinePool
-	for name, routinePool := range routinePoolMap { 
-	    //fmt.Printf("key[%s] value[%s]\n", name, routinePool)
+	for name, routinePool := range routinePoolMap {
 	    if name == routinePoolName{
 	    	toReturn = routinePool
 	    }
 	}
-	//fmt.Printf("POINTER :: The address of the routinePool in GetRoutinePool : %p\n", toReturn)
 	return toReturn
 }
 
 func ShutdownRoutinePools() bool {
 	for name, routinePool := range routinePoolMap { 
 	    routinePool.log("Shutting down RoutinePool : "+name)
-	    close(routinePool.jobChannel)
+	    routinePool.shutdown()
 	    close(routinePool.shutdownChannel)
+	    // Having a sleep here is to ensure that after invoking close(routinePool.shutdownChannel) the workroutines run method are out of the infinite for loop.
+	    // Without sleep jobChannel gets picked up in the infinite run method of the workroutine when  close(routinePool.jobChannel) is invoked.
+	    time.Sleep(200 * time.Millisecond)
+	    close(routinePool.jobChannel)
+	    close(routinePool.completedJobsChannel)
+		close(routinePool.resultChannel)
 	}
 	return true
 }
