@@ -1,11 +1,10 @@
 package collector
 
 import (
+	"com/coder/monagent/agentconstants"
 	"com/coder/initializer"
 	"com/coder/routinepool"
 	"com/coder/executor"
-	//"com/coder/logging"
-	"fmt"
 )
 
 type ServerMonitoringJob struct {
@@ -19,7 +18,7 @@ func (serverMonJob *ServerMonitoringJob) DoJob(routinePool *routinepool.RoutineP
 	jobResult := new(routinepool.JobResult)
 	serverMonJob.ResultData = jobResult
     exec := new(executor.Executor)
-    fmt.Println("============================== DoJob : Collecting data : ", linuxmonitor)	
+    agentconstants.Logger.Infof("============================== DoJob : Collecting data : ", linuxmonitor)
     if(linuxmonitor.Script){
     	agentScriptFilePath := initializer.GetAgentScriptsDir() +"/"+linuxmonitor.Command
 	    exec.SetCommand(agentScriptFilePath)	

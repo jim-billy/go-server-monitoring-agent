@@ -1,6 +1,6 @@
 package main
+
 import (
-	//"time"
 	"com/coder/monagent/agentconstants"
 	"com/coder/logging"
 	"com/coder/initializer"
@@ -9,14 +9,7 @@ import (
 	"com/coder/monagent/collector"
 	"fmt"
 	"runtime"
-	"github.com/chasex/glog"
 )
-
-
-var Logger *glog.Logger
-var ErrorUrlLogger *glog.Logger
-var SuccessUrlLogger *glog.Logger
-
 
 func init(){
 	fmt.Println("Init of MonAgent")
@@ -30,9 +23,8 @@ func init(){
 
 func initLogging(){
 	fmt.Println("=================== initLogging ============== ")
-	Logger = logging.GetLogger("agent", initializer.GetAgentLogDir(), true)
-	ErrorUrlLogger = logging.GetLogger("error", initializer.GetAgentLogDir(), true)
-	SuccessUrlLogger = logging.GetLogger("success", initializer.GetAgentLogDir(), true)
+	agentconstants.Logger = logging.GetLogger("agent", initializer.GetAgentLogDir(), true)
+	agentconstants.ErrorLogger = logging.GetLogger("error", initializer.GetAgentLogDir(), true)
 }
 
 func loadConfiguration(){

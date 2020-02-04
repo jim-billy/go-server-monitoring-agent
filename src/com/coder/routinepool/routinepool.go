@@ -109,6 +109,10 @@ func (routPool *RoutinePool) isShutdown() bool{
 	return false
 }
 
+func (routPool *RoutinePool) SetLogger(logger *glog.Logger){
+	routPool.poolConfig.Logger = logger
+}
+
 func (routPool *RoutinePool) GetLogger() *glog.Logger{
 	return routPool.poolConfig.Logger
 }
@@ -128,7 +132,7 @@ func (routPool *RoutinePool) ExecuteJob(job Job) bool{
 		routPool.log("RoutinePool : ExecuteJob : Job is nil. Hence returning.")
 		return false
 	}
-	fmt.Println("routPool.jobChannel :::::::::::::::::::::::::: ",routPool.jobChannel,routPool.isShutdown())
+	//fmt.Println("routPool.jobChannel :::::::::::::::::::::::::: ",routPool.jobChannel,routPool.isShutdown())
 	if(routPool.isShutdown()){
 		routPool.log("RoutinePool : ExecuteJob : RoutinePool is shutdown. Hence returning without executing job.")
 		return false

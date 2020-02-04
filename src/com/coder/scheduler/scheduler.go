@@ -1,9 +1,10 @@
 package scheduler
 
 import(
-	"fmt"
+	//"fmt"
 	"time"
 	"com/coder/routinepool"
+	"github.com/chasex/glog"
 )
 
 type ScheduleTaskType int
@@ -67,6 +68,7 @@ func (schTask *ScheduleTask) GetJob() routinepool.Job{
 type Scheduler struct {  
 	name string
 	routinePool *routinepool.RoutinePool
+	logger *glog.Logger
 }
 
 func (sch *Scheduler) SetName(name string){
@@ -77,9 +79,17 @@ func (sch *Scheduler) GetName() string{
 	return sch.name
 }
 
+func (sch *Scheduler) SetLogger(logger *glog.Logger){
+	sch.logger = logger
+	sch.routinePool.SetLogger(logger)
+}
+
+func (sch *Scheduler) GetLogger() *glog.Logger{
+	return sch.logger
+}
+
 func (sch *Scheduler) Schedule(schTask ScheduleTask){
 	if(schTask.taskType == REPETITIVE_TASK){
-		fmt.Println("REPETITIVE_TASK")
 		ticker := time.NewTicker(time.Duration(schTask.GetInterval()) * time.Second)
 	    done := make(chan bool)
 	
@@ -89,17 +99,16 @@ func (sch *Scheduler) Schedule(schTask ScheduleTask){
 	            case <-done:
 	                return
 	            case t := <-ticker.C:
-					fmt.Println("============================ Sending the job to the worker : ", schTask.scheduleJob,t)
+					sch.logger.Infof("Scheduler : Schedule : ============================ Sending the job to the worker : ", schTask.scheduleJob,t)
 					sch.routinePool.ExecuteJob(schTask.scheduleJob)
 	            }
 	        }
 	    }()
 	}else if(schTask.taskType == ONE_TIME_TASK){
-		fmt.Println("ONE_TIME_TASK")
-		fmt.Println("============================ Sending the job to the worker : ", schTask.scheduleJob)
+		sch.logger.Infof("Scheduler : Schedule : ONE_TIME_TASK : ============================ Sending the job to the worker : ", schTask.scheduleJob)
 		sch.routinePool.ExecuteJob(schTask.scheduleJob)
 	}else{
-		fmt.Println("Unknown task type in the input ScheduleTask : ",schTask)
+		sch.logger.Infof("Scheduler : Schedule : Unknown task type in the input ScheduleTask : ",schTask)
 	}
 	
 }
@@ -120,18 +129,15 @@ func GetScheduler(schedulerName string) *Scheduler {
 	    }
 	}
 	if(schToReturn == nil){
-		fmt.Println("Creating new scheduler : ", schedulerName)
 		config := routinepool.RoutinePoolConfig{
 			RoutinePoolName: schedulerName+"-RoutinePool",
 			RoutinePoolSize: DEFAULT_NO_OF_WORKERS,
 			QueueCapacity: QUEUE_CAPACITY,
-			//Logger: Logger,
 		}
 
 		routinePool, err := routinepool.NewRoutinePool(config)
 		if err != nil {
 			panic(err)
-			fmt.Println("Error while creating worker pool for the scheduler ..",schedulerName)
 		}else{
 			schToReturn = new(Scheduler)
 			schToReturn.name = schedulerName

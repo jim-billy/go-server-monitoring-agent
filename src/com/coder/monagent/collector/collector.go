@@ -2,8 +2,9 @@ package collector
 
 import (
 	"encoding/json"
-	"fmt"
+	//"fmt"
 	"strings"
+	//"strconv"
 	"com/coder/monagent/agentconstants"
 	"com/coder/config"
 	"com/coder/scheduler"
@@ -52,24 +53,23 @@ type CollectedData struct {
 
 
 func (collectorApi *CollectorApi) Initialize(){
-	fmt.Printf("POINTER :: The address of the received collectorApi in Initialize : %p\n", collectorApi)
+	agentconstants.Logger.Infof("CollectorApi : Initialize : Initializing CollectorApi")
 	monitorNameVsConfigMap = make(map[string]LinuxMonitor)
 	metricNameVsParseConfigMap = make(map[string]ParseConfiguration)
 	collectorApi.loadCollectorConfig()
 }
 
 func (collectorApi *CollectorApi) loadCollectorConfig(){
-	fmt.Printf("POINTER :: The address of the received collectorApi in loadCollectorConfig : %p\n", collectorApi)
 	configLoader := config.GetConfigLoader()
 	byteArr, errToReturn := configLoader.LoadBytesFromJson(agentconstants.LINUX_MONITORS_FILE_PATH)
 	json.Unmarshal(byteArr, &collectorApi.LinuxMonitors)
-	fmt.Println("Inside loadCollectorConfig :::::::::::: ", collectorApi.LinuxMonitors)
+	agentconstants.Logger.Infof("CollectorApi : loadCollectorConfig : LinuxMonitors : ", collectorApi.LinuxMonitors)
 	if(errToReturn != nil){
-		fmt.Println("Error while loading CollectorConfig ")
+		agentconstants.Logger.Infof("CollectorApi : loadCollectorConfig : Error while loading CollectorConfig : ",errToReturn)
 	}else{
-		for index, value := range collectorApi.LinuxMonitors {
+		for index, _ := range collectorApi.LinuxMonitors {
 			linuxMonitor := collectorApi.LinuxMonitors[index]
-			fmt.Println(index, " : ", value," :::::::: ",linuxMonitor.Name," :::::::: ",linuxMonitor.Interval)
+			agentconstants.Logger.Infof("CollectorApi : loadCollectorConfig : "+linuxMonitor.Name," :::::::: ",linuxMonitor.Interval)
 			monitorNameVsConfigMap[linuxMonitor.Name] = linuxMonitor
 			parseConfigArr := linuxMonitor.ParseConfig
 			for _, parseConfig := range parseConfigArr {
@@ -80,14 +80,12 @@ func (collectorApi *CollectorApi) loadCollectorConfig(){
 }
 
 func (collectorApi *CollectorApi) ScheduleDataCollection(){
-	fmt.Printf("POINTER :: The address of the received collectorApi in ScheduleDataCollection is: %p\n", collectorApi)
-	fmt.Println("Inside ScheduleDataCollection ============== ", collectorApi.LinuxMonitors)
+	agentconstants.Logger.Infof("CollectorApi : ScheduleDataCollection : Scheduling data collection")
 	var sched *scheduler.Scheduler
 	sched = scheduler.GetScheduler("DataCollectionScheduler")
-	for index, value := range collectorApi.LinuxMonitors {
+	sched.SetLogger(agentconstants.Logger)
+	for index, _ := range collectorApi.LinuxMonitors {
 		linuxMonitor := collectorApi.LinuxMonitors[index]
-		fmt.Println(index, " : ", value," :::::::: ",linuxMonitor.Name," :::::::: ",linuxMonitor.Interval)
-		
 		var schTask scheduler.ScheduleTask
 		schTask.SetName(linuxMonitor.Name)
 		schTask.SetType(scheduler.REPETITIVE_TASK)
@@ -100,9 +98,9 @@ func (collectorApi *CollectorApi) ScheduleDataCollection(){
 
 func (collectorApi *CollectorApi) ParseAndSave(serverMonJob *ServerMonitoringJob){
 	var collectedData *CollectedData
-	fmt.Println("===================== Is success : ",serverMonJob.ResultData.Result["is_success"],", Execution time : ",serverMonJob.ResultData.Result["execution_time"],", Output ",serverMonJob.ResultData.Result["output"],", Error : ",serverMonJob.ResultData.Result["error"])
+	agentconstants.Logger.Infof("CollectorApi : ParseAndSave : Is success : ",serverMonJob.ResultData.Result["is_success"],", Execution time : ",serverMonJob.ResultData.Result["execution_time"],", Output ",serverMonJob.ResultData.Result["output"],", Error : ",serverMonJob.ResultData.Result["error"])
 	collectedData = parserApi.parse(serverMonJob)
-	fmt.Println("Collected data : ",collectedData)
+	agentconstants.Logger.Infof("CollectorApi : ParseAndSave : Collected data : ",collectedData) 
 	//GetFileHandler
 }
 
@@ -172,7 +170,6 @@ Output will be
 */
 
 func (parserApi *ParserApi) parseKeyValue(serverMonJob *ServerMonitoringJob) *CollectedData{
-	fmt.Println("============================== parseKeyValue ============================== ")
 	parseConfigArr := serverMonJob.MonitorConfig.ParseConfig
 	output := serverMonJob.ResultData.Result["output"].(string)
 	colData := make(map[string]interface{})
@@ -189,7 +186,8 @@ func (parserApi *ParserApi) parseKeyValue(serverMonJob *ServerMonitoringJob) *Co
 		}
 	}
 	jsonString, _ := json.Marshal(colData)
-	fmt.Println("Output JSON  ::::::::::::::::::::: ",string(jsonString))
+	agentconstants.Logger.Infof("CollectorApi : parseKeyValue : Collected JSON  ::::::::::::::::::::: "+serverMonJob.MonitorConfig.Name+" ::::::::::::::: "+string(jsonString))
+	//fmt.Println("ParserApi : parseKeyValue : Collected JSON  ::::::::::::::::::::: ",string(jsonString))
 	collectedData := NewCollectedData(colData)
 	return collectedData
 }
@@ -242,7 +240,6 @@ func (parserApi *ParserApi) parseKeyValue(serverMonJob *ServerMonitoringJob) *Co
 	
 */
 func (parserApi *ParserApi) parseAllLines(serverMonJob *ServerMonitoringJob) *CollectedData{
-	fmt.Println("============================== parseAllLines ============================== ")
 	parseConfigArr := serverMonJob.MonitorConfig.ParseConfig
 	output := serverMonJob.ResultData.Result["output"].(string)
 	outputArr := strings.SplitAfter(output, "\n")
@@ -265,7 +262,8 @@ func (parserApi *ParserApi) parseAllLines(serverMonJob *ServerMonitoringJob) *Co
 	}
 	collectedData := NewCollectedData(colDataArr)
 	jsonString, _ := json.Marshal(colDataArr)
-	fmt.Println("Collected JSON  ::::::::::::::::::::: ",string(jsonString))
+	agentconstants.Logger.Infof("CollectorApi : parseAllLines : Collected JSON  ::::::::::::::::::::: "+serverMonJob.MonitorConfig.Name+" ::::::::::::::: "+string(jsonString))
+	//fmt.Println("ParserApi : parseAllLines : Collected JSON  ::::::::::::::::::::: ",serverMonJob.MonitorConfig.Name,":::::::::;",string(jsonString))
 	return collectedData
 }
 
