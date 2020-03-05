@@ -1,3 +1,4 @@
+// Package for scheduling jobs at specified time.
 package scheduler
 
 import(
