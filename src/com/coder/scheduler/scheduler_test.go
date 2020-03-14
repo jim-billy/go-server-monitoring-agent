@@ -70,6 +70,23 @@ func (TestScheduler) printSchedulerPerformanceStats(){
 }
 
 func main(){
+	
+}
+
+func TestGetScheduler( t *testing.T ) {
+
+	var sched *scheduler.Scheduler
+	sched = scheduler.GetScheduler("DataCollectionScheduler1") 
+
+	if sched == nil {
+		t.Errorf( "scheduler.GetScheduler FAILED, Unable to create scheduler")
+	} else {
+		t.Logf( "scheduler.GetScheduler PASSED, Scheduler creation successful" )
+	}
+}
+
+func TestGetScheduler1( t *testing.T ) {
+
 	var testSch *TestScheduler
 	testSch = new(TestScheduler)
 	testSch.testScheduler()

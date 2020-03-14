@@ -100,16 +100,16 @@ func (sch *Scheduler) Schedule(schTask ScheduleTask){
 	            case <-done:
 	                return
 	            case t := <-ticker.C:
-					sch.logger.Infof("Scheduler : Schedule : ============================ Sending the job to the worker : ", schTask.scheduleJob,t)
+					sch.logger.Infof("Scheduler : Schedule : ============================ Sending the job to the worker : %v %v", schTask.scheduleJob,t)
 					sch.routinePool.ExecuteJob(schTask.scheduleJob)
 	            }
 	        }
 	    }()
 	}else if(schTask.taskType == ONE_TIME_TASK){
-		sch.logger.Infof("Scheduler : Schedule : ONE_TIME_TASK : ============================ Sending the job to the worker : ", schTask.scheduleJob)
+		sch.logger.Infof("Scheduler : Schedule : ONE_TIME_TASK : ============================ Sending the job to the worker : %v", schTask.scheduleJob)
 		sch.routinePool.ExecuteJob(schTask.scheduleJob)
 	}else{
-		sch.logger.Infof("Scheduler : Schedule : Unknown task type in the input ScheduleTask : ",schTask)
+		sch.logger.Infof("Scheduler : Schedule : Unknown task type in the input ScheduleTask : %v",schTask)
 	}
 	
 }
