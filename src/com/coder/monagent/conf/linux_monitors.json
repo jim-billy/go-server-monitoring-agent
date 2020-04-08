@@ -4,7 +4,7 @@
 		"script" : true,
 		"command" : "metrics.sh",
 		"command_args" : "cpu_util",
-		"interval" : 5,
+		"interval" : 10,
 		"key_value" : true,
 		"parse_impl" : "",
 		"parse_config" : [
@@ -44,7 +44,7 @@
 		"script" : true,
 		"command" : "metrics.sh",
 		"command_args" : "disk_util",
-		"interval" : 5,
+		"interval" : 10,
 		"key_value" : false,
 		"parse_all_line" : true,
 		"parse_impl" : "",
@@ -77,7 +77,7 @@
 		"script" : true,
 		"command" : "metrics.sh",
 		"command_args" : "mem_util",
-		"interval" : 5,
+		"interval" : 10,
 		"key_value" : true,
 		"parse_impl" : "",
 		"parse_config" : [
