@@ -14,18 +14,21 @@ import (
 	"com/coder/util"
 )
 
-var collectorApi CollectorApi
-var parserApi ParserApi
+var collectorAPI CollectorAPI
+var parserAPI ParserAPI
 var monitorNameVsConfigMap map[string]LinuxMonitor
 var metricNameVsParseConfigMap map[string]ParseConfiguration
 
-type CollectorApi struct {
+// CollectorAPI is responsible for data collection in the server
+type CollectorAPI struct {
 	LinuxMonitors []LinuxMonitor
 }
 
-type ParserApi struct {
+// ParserAPI is responsible for parsing the collected data
+type ParserAPI struct {
 }
 
+// LinuxMonitor holds all the attributes related to the data collection of metrics like CPU utilization, disk utilization, memory utilization etc.
 type LinuxMonitor struct {
 	Name         string               `json:"name"`
 	Script       bool                 `json:"script"`
@@ -38,6 +41,7 @@ type LinuxMonitor struct {
 	ParseConfig  []ParseConfiguration `json:"parse_config"`
 }
 
+// ParseConfiguration holds the attributes defined in the linux_monitors.json that are necessary for parsing the collected data.
 type ParseConfiguration struct {
 	MetricName string `json:"metric_name"`
 	ParseLine  int    `json:"parse_line"`
@@ -47,6 +51,7 @@ type ParseConfiguration struct {
 	Expression string `json:"expression"`
 }
 
+// CollectedData holds the data that is collected
 type CollectedData struct {
 	Name           string
 	CollectionTime int64
@@ -54,24 +59,25 @@ type CollectedData struct {
 	Save           bool
 }
 
-func (collectorApi *CollectorApi) Initialize() {
-	agentconstants.Logger.Infof("CollectorApi : Initialize : Initializing CollectorApi")
+// Initialize is responsible loading the data collection metrics from the linux_monitors.json and initialzing the collectorAPI
+func (collectorAPI *CollectorAPI) Initialize() {
+	agentconstants.Logger.Infof("collectorAPI : Initialize : Initializing collectorAPI")
 	monitorNameVsConfigMap = make(map[string]LinuxMonitor)
 	metricNameVsParseConfigMap = make(map[string]ParseConfiguration)
-	collectorApi.loadCollectorConfig()
+	collectorAPI.loadCollectorConfig()
 }
 
-func (collectorApi *CollectorApi) loadCollectorConfig() {
+func (collectorAPI *CollectorAPI) loadCollectorConfig() {
 	configLoader := config.GetConfigLoader()
 	byteArr, errToReturn := configLoader.LoadBytesFromJson(agentconstants.LINUX_MONITORS_FILE_PATH)
-	json.Unmarshal(byteArr, &collectorApi.LinuxMonitors)
-	agentconstants.Logger.Infof("CollectorApi : loadCollectorConfig : LinuxMonitors : ", collectorApi.LinuxMonitors)
+	json.Unmarshal(byteArr, &collectorAPI.LinuxMonitors)
+	agentconstants.Logger.Infof("collectorAPI : loadCollectorConfig : LinuxMonitors : ", collectorAPI.LinuxMonitors)
 	if errToReturn != nil {
-		agentconstants.Logger.Infof("CollectorApi : loadCollectorConfig : Error while loading CollectorConfig : ", errToReturn)
+		agentconstants.Logger.Infof("collectorAPI : loadCollectorConfig : Error while loading CollectorConfig : ", errToReturn)
 	} else {
-		for index, _ := range collectorApi.LinuxMonitors {
-			linuxMonitor := collectorApi.LinuxMonitors[index]
-			agentconstants.Logger.Infof("CollectorApi : loadCollectorConfig : "+linuxMonitor.Name, " :::::::: ", linuxMonitor.Interval)
+		for index := range collectorAPI.LinuxMonitors {
+			linuxMonitor := collectorAPI.LinuxMonitors[index]
+			agentconstants.Logger.Infof("collectorAPI : loadCollectorConfig : "+linuxMonitor.Name, " :::::::: ", linuxMonitor.Interval)
 			monitorNameVsConfigMap[linuxMonitor.Name] = linuxMonitor
 			parseConfigArr := linuxMonitor.ParseConfig
 			for _, parseConfig := range parseConfigArr {
@@ -81,41 +87,43 @@ func (collectorApi *CollectorApi) loadCollectorConfig() {
 	}
 }
 
-func (collectorApi *CollectorApi) ScheduleDataCollection() {
-	agentconstants.Logger.Infof("CollectorApi : ScheduleDataCollection : Scheduling data collection")
+// ScheduleDataCollection is responsible for scheduling the metrics defined in linux_monitors.json based on the time interval configured.
+func (collectorAPI *CollectorAPI) ScheduleDataCollection() {
+	agentconstants.Logger.Infof("collectorAPI : ScheduleDataCollection : Scheduling data collection")
 	var sched *scheduler.Scheduler
 	sched = scheduler.GetScheduler("DataCollectionScheduler")
 	sched.SetLogger(agentconstants.Logger)
-	for index, _ := range collectorApi.LinuxMonitors {
-		linuxMonitor := collectorApi.LinuxMonitors[index]
+	for index := range collectorAPI.LinuxMonitors {
+		linuxMonitor := collectorAPI.LinuxMonitors[index]
 		var schTask scheduler.ScheduleTask
 		schTask.SetName(linuxMonitor.Name)
 		schTask.SetType(scheduler.REPETITIVE_TASK)
 		schTask.SetInterval(linuxMonitor.Interval)
-		serverMonJob := &ServerMonitoringJob{MonitorConfig: linuxMonitor, Id: 1}
+		serverMonJob := &ServerMonitoringJob{MonitorConfig: linuxMonitor, ID: 1}
 		schTask.SetJob(serverMonJob)
 		sched.Schedule(schTask)
 	}
 }
 
-func (collectorApi *CollectorApi) ParseAndSave(serverMonJob *ServerMonitoringJob) {
+//ParseAndSave is responsible for parsing and saving the collected data
+func (collectorAPI *CollectorAPI) ParseAndSave(serverMonJob *ServerMonitoringJob) {
 	var collectedData *CollectedData
-	agentconstants.Logger.Infof("CollectorApi : ParseAndSave : Is success : ", serverMonJob.ResultData.Result["is_success"], ", Execution time : ", serverMonJob.ResultData.Result["execution_time"], ", Output ", serverMonJob.ResultData.Result["output"], ", Error : ", serverMonJob.ResultData.Result["error"])
-	collectedData = parserApi.parse(serverMonJob)
-	agentconstants.Logger.Infof("CollectorApi : ParseAndSave : Collected data : ", collectedData)
+	agentconstants.Logger.Infof("collectorAPI : ParseAndSave : Is success : ", serverMonJob.ResultData.Result["is_success"], ", Execution time : ", serverMonJob.ResultData.Result["execution_time"], ", Output ", serverMonJob.ResultData.Result["output"], ", Error : ", serverMonJob.ResultData.Result["error"])
+	collectedData = parserAPI.parse(serverMonJob)
+	agentconstants.Logger.Infof("collectorAPI : ParseAndSave : Collected data : ", collectedData)
 	//GetFileHandler
 }
 
-func (collectorApi *CollectorApi) getParseConfig(name string) ParseConfiguration {
+func (collectorAPI *CollectorAPI) getParseConfig(name string) ParseConfiguration {
 	return metricNameVsParseConfigMap[name]
 }
 
-func (parserApi *ParserApi) parse(serverMonJob *ServerMonitoringJob) *CollectedData {
+func (parserAPI *ParserAPI) parse(serverMonJob *ServerMonitoringJob) *CollectedData {
 	var collectedData *CollectedData
 	if serverMonJob.MonitorConfig.KeyValue {
-		collectedData = parserApi.parseKeyValue(serverMonJob)
+		collectedData = parserAPI.parseKeyValue(serverMonJob)
 	} else if serverMonJob.MonitorConfig.ParseAllLine {
-		collectedData = parserApi.parseAllLines(serverMonJob)
+		collectedData = parserAPI.parseAllLines(serverMonJob)
 	}
 	collectedData.save()
 	return collectedData
@@ -172,7 +180,7 @@ Output will be
 
 */
 
-func (parserApi *ParserApi) parseKeyValue(serverMonJob *ServerMonitoringJob) *CollectedData {
+func (parserAPI *ParserAPI) parseKeyValue(serverMonJob *ServerMonitoringJob) *CollectedData {
 	parseConfigArr := serverMonJob.MonitorConfig.ParseConfig
 	output := serverMonJob.ResultData.Result["output"].(string)
 	colData := make(map[string]interface{})
@@ -239,7 +247,7 @@ func (parserApi *ParserApi) parseKeyValue(serverMonJob *ServerMonitoringJob) *Co
 		]
 
 */
-func (parserApi *ParserApi) parseAllLines(serverMonJob *ServerMonitoringJob) *CollectedData {
+func (parserAPI *ParserAPI) parseAllLines(serverMonJob *ServerMonitoringJob) *CollectedData {
 	parseConfigArr := serverMonJob.MonitorConfig.ParseConfig
 	output := serverMonJob.ResultData.Result["output"].(string)
 	outputArr := strings.SplitAfter(output, "\n")
@@ -264,6 +272,7 @@ func (parserApi *ParserApi) parseAllLines(serverMonJob *ServerMonitoringJob) *Co
 	return collectedData
 }
 
+// NewCollectedData returns an instance of the CollectedData struct
 func NewCollectedData(name string, data interface{}) *CollectedData {
 	collectedData := new(CollectedData)
 	collectedData.Name = name
@@ -288,12 +297,13 @@ func (collectedData *CollectedData) getDataCollectionFileName() string {
 
 func (collectedData *CollectedData) save() bool {
 	jsonString, _ := json.Marshal(collectedData.Data)
-	agentconstants.Logger.Infof("CollectorApi : parseKeyValue : Collected JSON  ::::::::::::::::::::: " + collectedData.Name + " ::::::::::::::: " + string(jsonString))
+	agentconstants.Logger.Infof("collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: " + collectedData.Name + " ::::::::::::::: " + string(jsonString))
 	util.WriteToFile(collectedData.getDataCollectionFileName(), string(jsonString))
 	return true
 
 }
 
-func GetCollectorApi() *CollectorApi {
-	return &collectorApi
+// GetcollectorAPI can be invoked from other packages for fetching the instance of the collectorAPI
+func GetcollectorAPI() *CollectorAPI {
+	return &collectorAPI
 }

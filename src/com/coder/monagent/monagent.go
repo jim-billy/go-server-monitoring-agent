@@ -28,12 +28,12 @@ func initLogging(){
 }
 
 func loadConfiguration(){
-	collector.GetCollectorApi().Initialize()
+	collector.GetcollectorAPI().Initialize()
 }
 
 func main() {
 	util.SetLimit()
-	collector.GetCollectorApi().ScheduleDataCollection()
+	collector.GetcollectorAPI().ScheduleDataCollection()
 	shutdown.Wait()
 }
 

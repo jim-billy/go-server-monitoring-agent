@@ -42,7 +42,7 @@ func (websiteJob *WebsiteJob) DoJob(routinePool *routinepool.RoutinePool) {
 	*/
 }
 
-func (websiteJob *WebsiteJob) GetId() int{
+func (websiteJob *WebsiteJob) GetID() int{
     return websiteJob.Id
 }
 
