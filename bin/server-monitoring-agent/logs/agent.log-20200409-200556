@@ -1,0 +1,63 @@
+2020/04/09 20:05:56 INFO ========================== Logging started ==========================
+2020/04/09 20:05:56 INFO No. of CPU cores : 4
+2020/04/09 20:05:56 INFO collectorAPI : Initialize : Initializing collectorAPI
+2020/04/09 20:05:56 INFO collectorAPI : loadCollectorConfig : LinuxMonitors : %!(EXTRA []collector.LinuxMonitor=[{cpu_utilization true metrics.sh cpu_util 10 true false  [{cpu_instance 1 : 2 false } {cpu_idle_percentage 2 : 2 false } {cpu_load_percentage 3 : 2 false } {cpu_wait_percentage 4 : 2 false }]} {disk_utilization true metrics.sh disk_util 10 false true  [{name 1 == 2 false } {size 2 == 2 false } {free_space 3 == 2 false }]} {mem_utilization true metrics.sh mem_util 10 true false  [{total_visible_memory 1 : 2 false } {free_physical_memory 2 : 2 false } {total_virtual_memory 3 : 2 false } {free_Virtual_memory 4 : 2 false } {os_name 5 : 2 false }]}])
+2020/04/09 20:05:56 INFO collectorAPI : loadCollectorConfig : cpu_utilization%!(EXTRA string= :::::::: , int=10)
+2020/04/09 20:05:56 INFO collectorAPI : loadCollectorConfig : disk_utilization%!(EXTRA string= :::::::: , int=10)
+2020/04/09 20:05:56 INFO collectorAPI : loadCollectorConfig : mem_utilization%!(EXTRA string= :::::::: , int=10)
+2020/04/09 20:05:56 INFO collectorAPI : ScheduleDataCollection : Scheduling data collection
+2020/04/09 20:06:06 INFO Scheduler : Schedule : ============================ Sending the job to the worker : &{1 {disk_utilization true metrics.sh disk_util 10 false true  [{name 1 == 2 false } {size 2 == 2 false } {free_space 3 == 2 false }]} <nil>} 2020-04-09 20:06:06.912732428 +0530 IST m=+10.028577109
+2020/04/09 20:06:06 INFO Scheduler : Schedule : ============================ Sending the job to the worker : &{1 {cpu_utilization true metrics.sh cpu_util 10 true false  [{cpu_instance 1 : 2 false } {cpu_idle_percentage 2 : 2 false } {cpu_load_percentage 3 : 2 false } {cpu_wait_percentage 4 : 2 false }]} <nil>} 2020-04-09 20:06:06.912726274 +0530 IST m=+10.028570971
+2020/04/09 20:06:06 INFO workRoutine Id : : DataCollectionScheduler-RoutinePool-WorkRoutine-1, JobId : 1
+2020/04/09 20:06:06 INFO workRoutine Id : : DataCollectionScheduler-RoutinePool-WorkRoutine-8, JobId : 1
+2020/04/09 20:06:06 INFO ============================== DoJob : Collecting data : %!(EXTRA collector.LinuxMonitor={disk_utilization true metrics.sh disk_util 10 false true  [{name 1 == 2 false } {size 2 == 2 false } {free_space 3 == 2 false }]})
+2020/04/09 20:06:06 INFO ============================== DoJob : Collecting data : %!(EXTRA collector.LinuxMonitor={cpu_utilization true metrics.sh cpu_util 10 true false  [{cpu_instance 1 : 2 false } {cpu_idle_percentage 2 : 2 false } {cpu_load_percentage 3 : 2 false } {cpu_wait_percentage 4 : 2 false }]})
+2020/04/09 20:06:06 INFO Scheduler : Schedule : ============================ Sending the job to the worker : &{1 {mem_utilization true metrics.sh mem_util 10 true false  [{total_visible_memory 1 : 2 false } {free_physical_memory 2 : 2 false } {total_virtual_memory 3 : 2 false } {free_Virtual_memory 4 : 2 false } {os_name 5 : 2 false }]} <nil>} 2020-04-09 20:06:06.912733049 +0530 IST m=+10.028577707
+2020/04/09 20:06:06 INFO workRoutine Id : : DataCollectionScheduler-RoutinePool-WorkRoutine-3, JobId : 1
+2020/04/09 20:06:06 INFO ============================== DoJob : Collecting data : %!(EXTRA collector.LinuxMonitor={mem_utilization true metrics.sh mem_util 10 true false  [{total_visible_memory 1 : 2 false } {free_physical_memory 2 : 2 false } {total_virtual_memory 3 : 2 false } {free_Virtual_memory 4 : 2 false } {os_name 5 : 2 false }]})
+2020/04/09 20:06:06 INFO collectorAPI : ParseAndSave : Is success : %!(EXTRA bool=true, string=, Execution time : , int64=1586442966922, string=, Output , string=/dev == 8252485632 == 8252485632 
+/dev/shm == 8270274560 == 7868346368 
+/run == 8270274560 == 8175759360 
+/sys/fs/cgroup == 8270274560 == 8270274560 
+/ == 53660876800 == 31999655936 
+/boot == 1063256064 == 760909824 
+/home == 436736655360 == 395134795776 
+/run/user/1000 == 1654054912 == 1653956608 
+, string=, Error : , <nil>)
+2020/04/09 20:06:06 INFO collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: disk_utilization ::::::::::::::: [{"free_space":"8252485632","name":"/dev","size":"8252485632"},{"free_space":"7868346368","name":"/dev/shm","size":"8270274560"},{"free_space":"8175759360","name":"/run","size":"8270274560"},{"free_space":"8270274560","name":"/sys/fs/cgroup","size":"8270274560"},{"free_space":"31999655936","name":"/","size":"53660876800"},{"free_space":"760909824","name":"/boot","size":"1063256064"},{"free_space":"395134795776","name":"/home","size":"436736655360"},{"free_space":"1653956608","name":"/run/user/1000","size":"1654054912"},{}]
+2020/04/09 20:06:06 INFO collectorAPI : ParseAndSave : Is success : %!(EXTRA bool=true, string=, Execution time : , int64=1586442966926, string=, Output , string=total_visible_memory : 16152880
+free_physical_memory :3989028
+total_virtual_memory : 8191996 
+free_Virtual_memory : 7222228
+os_name :  CentOS Linux release 7.7.1908 (Core)
+, string=, Error : , <nil>)
+2020/04/09 20:06:06 INFO collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: mem_utilization ::::::::::::::: {"free_Virtual_memory ":"7222228","free_physical_memory ":"3989028","os_name ":"CentOS Linux release 7.7.1908 (Core)","total_virtual_memory ":"8191996","total_visible_memory ":"16152880"}
+2020/04/09 20:06:06 INFO collectorAPI : ParseAndSave : Collected data : %!(EXTRA *collector.CollectedData=&{disk_utilization 1586442966922 [map[free_space:8252485632 name:/dev size:8252485632] map[free_space:7868346368 name:/dev/shm size:8270274560] map[free_space:8175759360 name:/run size:8270274560] map[free_space:8270274560 name:/sys/fs/cgroup size:8270274560] map[free_space:31999655936 name:/ size:53660876800] map[free_space:760909824 name:/boot size:1063256064] map[free_space:395134795776 name:/home size:436736655360] map[free_space:1653956608 name:/run/user/1000 size:1654054912] map[]] true})
+2020/04/09 20:06:06 INFO collectorAPI : ParseAndSave : Collected data : %!(EXTRA *collector.CollectedData=&{mem_utilization 1586442966926 map[free_Virtual_memory :7222228 free_physical_memory :3989028 os_name :CentOS Linux release 7.7.1908 (Core) total_virtual_memory :8191996 total_visible_memory :16152880] true})
+2020/04/09 20:06:08 INFO collectorAPI : ParseAndSave : Is success : %!(EXTRA bool=true, string=, Execution time : , int64=1586442968141, string=, Output , string=cpu_instance : cpu
+cpu_idle_percentage :  93.5
+cpu_load_percentage : 6.50
+cpu_wait_percentage : 0.00
+, string=, Error : , <nil>)
+2020/04/09 20:06:08 INFO collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: cpu_utilization ::::::::::::::: {"cpu_idle_percentage ":"93.5","cpu_instance ":"cpu","cpu_load_percentage ":"6.50","cpu_wait_percentage ":"0.00"}
+2020/04/09 20:06:08 INFO collectorAPI : ParseAndSave : Collected data : %!(EXTRA *collector.CollectedData=&{cpu_utilization 1586442968141 map[cpu_idle_percentage :93.5 cpu_instance :cpu cpu_load_percentage :6.50 cpu_wait_percentage :0.00] true})
+2020/04/09 20:06:16 INFO QueuedWork : 0
+2020/04/09 20:06:16 INFO ActiveRoutines : 0
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-7, Total jobs : 0, Max job time : 0 ms, Min job time : 0 ms
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-8, Total jobs : 1, Max job time : 1230 ms, Min job time : 1230 ms
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-1, Total jobs : 1, Max job time : 13 ms, Min job time : 13 ms
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-2, Total jobs : 0, Max job time : 0 ms, Min job time : 0 ms
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-3, Total jobs : 1, Max job time : 16 ms, Min job time : 16 ms
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-4, Total jobs : 0, Max job time : 0 ms, Min job time : 0 ms
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-5, Total jobs : 0, Max job time : 0 ms, Min job time : 0 ms
+2020/04/09 20:06:16 INFO WorkRoutine : DataCollectionScheduler-RoutinePool-WorkRoutine-6, Total jobs : 0, Max job time : 0 ms, Min job time : 0 ms
+2020/04/09 20:06:16 INFO Shutting down RoutinePool : DataCollectionScheduler-RoutinePool
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-7 Shutdown received : false
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-1 Shutdown received : false
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-4 Shutdown received : false
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-2 Shutdown received : false
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-3 Shutdown received : false
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-8 Shutdown received : false
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-6 Shutdown received : false
+2020/04/09 20:06:16 INFO Shutting down work routine : DataCollectionScheduler-RoutinePool-WorkRoutine-5 Shutdown received : false
+2020/04/09 20:06:16 INFO Flusing logger : agent

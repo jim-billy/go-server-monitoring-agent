@@ -1,0 +1,122 @@
+[
+	{
+		"name" : "cpu_utilization",
+		"script" : true,
+		"command" : "metrics.sh",
+		"command_args" : "cpu_util",
+		"interval" : 10,
+		"key_value" : true,
+		"parse_impl" : "",
+		"parse_config" : [
+			{
+				"metric_name" : "cpu_instance", 
+				"parse_line" : 1,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false 
+			},
+			{
+				"metric_name" : "cpu_idle_percentage", 
+				"parse_line" : 2,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false 
+			},
+			{
+				"metric_name" : "cpu_load_percentage", 
+				"parse_line" : 3,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false
+			},
+			{
+				"metric_name" : "cpu_wait_percentage", 
+				"parse_line" : 4,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false 
+			}
+		]
+			
+	},
+	{
+		"name" : "disk_utilization",
+		"script" : true,
+		"command" : "metrics.sh",
+		"command_args" : "disk_util",
+		"interval" : 10,
+		"key_value" : false,
+		"parse_all_line" : true,
+		"parse_impl" : "",
+		"parse_config" : [
+			{
+				"metric_name" : "name", 
+				"parse_line" : 1,
+				"delimiter" : "==",
+				"token" : 2,
+				"counter" : false 
+			},
+			{
+				"metric_name" : "size", 
+				"parse_line" : 2,
+				"delimiter" : "==",
+				"token" : 2,
+				"counter" : false 
+			},
+			{
+				"metric_name" : "free_space", 
+				"parse_line" : 3,
+				"delimiter" : "==",
+				"token" : 2,
+				"counter" : false
+			}
+		]
+	},
+	{
+		"name" : "mem_utilization",
+		"script" : true,
+		"command" : "metrics.sh",
+		"command_args" : "mem_util",
+		"interval" : 10,
+		"key_value" : true,
+		"parse_impl" : "",
+		"parse_config" : [
+			{
+				"metric_name" : "total_visible_memory", 
+				"parse_line" : 1,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false 
+			},
+			{
+				"metric_name" : "free_physical_memory", 
+				"parse_line" : 2,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false 
+			},
+			{
+				"metric_name" : "total_virtual_memory", 
+				"parse_line" : 3,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false
+			},
+			{
+				"metric_name" : "free_Virtual_memory", 
+				"parse_line" : 4,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false 
+			},
+			{
+				"metric_name" : "os_name", 
+				"parse_line" : 5,
+				"delimiter" : ":",
+				"token" : 2,
+				"counter" : false
+			}
+		]
+			
+	}
+]

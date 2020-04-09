@@ -13,8 +13,10 @@ import (
 )
 
 const (
-	MAX_ROUTINE_POOL_SIZE int = 500
-	MAX_QUEUE_CAPACITY    int = 1000
+	// MaxRoutinePoolSize denotes the maximum number of goroutines that can be created in a RoutinePool
+	MaxRoutinePoolSize int = 500
+	// MaxQueueCapacity denotes the maximum number of jobs that can added to the RoutinePool's queue
+	MaxQueueCapacity int = 1000
 )
 
 var routinePoolMap map[string]*RoutinePool
@@ -23,15 +25,19 @@ func init() {
 	routinePoolMap = make(map[string]*RoutinePool)
 }
 
+// Job is the interface that denotes the job that will be execute by the WorkRoutine in the RoutinePool.
+// It groups the DoJob and GetID methods
 type Job interface {
-	DoJob(routinePool *RoutinePool)
 	GetID() int
+	DoJob(routinePool *RoutinePool)
 }
 
+// JobResult contains the result of the job that has been executed by the WorkRoutine in the RoutinePool.
 type JobResult struct {
 	Result map[string]interface{}
 }
 
+// RoutinePoolConfig contains necessary attributes for creating a RoutinePool
 type RoutinePoolConfig struct {
 	RoutinePoolName string
 	RoutinePoolSize int
@@ -43,6 +49,7 @@ func (poolConfig RoutinePoolConfig) String() string {
 	return fmt.Sprintf("RoutinePoolName : %s, RoutinePoolSize : %d, QueueCapacity : %d", poolConfig.RoutinePoolName, poolConfig.RoutinePoolSize, poolConfig.QueueCapacity)
 }
 
+// RoutinePool is responsible for executing jobs added to it in separate goroutines
 type RoutinePool struct {
 	poolConfig            RoutinePoolConfig
 	isRoutinePoolShutdown int32
@@ -55,6 +62,7 @@ type RoutinePool struct {
 	workRoutines          map[string]*WorkRoutine
 }
 
+// NewRoutinePool creates a new RoutinePool with the given RoutinePoolConfig
 func NewRoutinePool(routinePoolConfig RoutinePoolConfig) (*RoutinePool, error) {
 	//Evaluate the input config before constructing the routinepool
 	err := evaluateRoutinePoolConfig(routinePoolConfig)
@@ -90,11 +98,11 @@ func evaluateRoutinePoolConfig(routinePoolConfig RoutinePoolConfig) error {
 	if _, isAlreadyPresent := routinePoolMap[routinePoolConfig.RoutinePoolName]; isAlreadyPresent {
 		return errors.New("RoutinePool with the name '" + routinePoolConfig.RoutinePoolName + "' already exists. Please provide a different name to uniquely identify the RoutinePool")
 	}
-	if routinePoolConfig.RoutinePoolSize < 0 || routinePoolConfig.RoutinePoolSize > MAX_ROUTINE_POOL_SIZE {
-		return errors.New("RoutinePoolSize should be greater than zero and less than the MAX_ROUTINE_POOL_SIZE : " + strconv.Itoa(MAX_ROUTINE_POOL_SIZE))
+	if routinePoolConfig.RoutinePoolSize < 0 || routinePoolConfig.RoutinePoolSize > MaxRoutinePoolSize {
+		return errors.New("RoutinePoolSize should be greater than zero and less than the MaxRoutinePoolSize : " + strconv.Itoa(MaxRoutinePoolSize))
 	}
-	if routinePoolConfig.QueueCapacity < 0 || routinePoolConfig.QueueCapacity > MAX_QUEUE_CAPACITY {
-		return errors.New("QueueCapacity should be greater than zero and less than the MAX_QUEUE_CAPACITY : " + strconv.Itoa(MAX_QUEUE_CAPACITY))
+	if routinePoolConfig.QueueCapacity < 0 || routinePoolConfig.QueueCapacity > MaxQueueCapacity {
+		return errors.New("QueueCapacity should be greater than zero and less than the MaxQueueCapacity : " + strconv.Itoa(MaxQueueCapacity))
 	}
 	return nil
 }
@@ -110,10 +118,12 @@ func (routPool *RoutinePool) isShutdown() bool {
 	return false
 }
 
+// SetLogger sets the logger for the RoutinePool
 func (routPool *RoutinePool) SetLogger(logger *glog.Logger) {
 	routPool.poolConfig.Logger = logger
 }
 
+// GetLogger returns the logger used by the RoutinePool
 func (routPool *RoutinePool) GetLogger() *glog.Logger {
 	return routPool.poolConfig.Logger
 }
@@ -128,6 +138,7 @@ func (routPool *RoutinePool) log(message string) {
 	}
 }
 
+// ExecuteJob adds the job to the jobChannel of the RoutinePool.
 func (routPool *RoutinePool) ExecuteJob(job Job) bool {
 	if job == nil {
 		routPool.log("RoutinePool : ExecuteJob : Job is nil. Hence returning.")
@@ -143,14 +154,17 @@ func (routPool *RoutinePool) ExecuteJob(job Job) bool {
 	return true
 }
 
+// GetShutdownChannel returns the shutdown channel of the RoutinePool
 func (routPool *RoutinePool) GetShutdownChannel() chan bool {
 	return routPool.shutdownChannel
 }
 
+// GetCompletedJobsChannel returns the completed jobs channel of the RoutinePool
 func (routPool *RoutinePool) GetCompletedJobsChannel() chan Job {
 	return routPool.completedJobsChannel
 }
 
+// GetResultChannel returns the result channel of the RoutinePool
 func (routPool *RoutinePool) GetResultChannel() chan Job {
 	return routPool.resultChannel
 }
@@ -160,12 +174,12 @@ func (routPool *RoutinePool) GetQueuedWork() int32 {
 	return atomic.AddInt32(&routPool.queuedWork, 0)
 }
 
-func (routinePool *RoutinePool) incrementQueuedWork() {
-	atomic.AddInt32(&routinePool.queuedWork, 1)
+func (routPool *RoutinePool) incrementQueuedWork() {
+	atomic.AddInt32(&routPool.queuedWork, 1)
 }
 
-func (routinePool *RoutinePool) decrementQueuedWork() {
-	atomic.AddInt32(&routinePool.queuedWork, -1)
+func (routPool *RoutinePool) decrementQueuedWork() {
+	atomic.AddInt32(&routPool.queuedWork, -1)
 }
 
 // GetActiveRoutines will return the number of routines performing work.
@@ -174,14 +188,15 @@ func (routPool *RoutinePool) GetActiveRoutines() int32 {
 	return atomic.AddInt32(&routPool.activeRoutines, 0)
 }
 
-func (routinePool *RoutinePool) incrementActiveRoutines() {
-	atomic.AddInt32(&routinePool.activeRoutines, 1)
+func (routPool *RoutinePool) incrementActiveRoutines() {
+	atomic.AddInt32(&routPool.activeRoutines, 1)
 }
 
-func (routinePool *RoutinePool) decrementActiveRoutines() {
-	atomic.AddInt32(&routinePool.activeRoutines, -1)
+func (routPool *RoutinePool) decrementActiveRoutines() {
+	atomic.AddInt32(&routPool.activeRoutines, -1)
 }
 
+// WorkRoutine runs the job in individual goroutines
 type WorkRoutine struct {
 	workRoutineName string
 	startTime       time.Time
@@ -191,9 +206,10 @@ type WorkRoutine struct {
 	routinePool     *RoutinePool
 }
 
-func NewWorkRoutine(routinePool *RoutinePool, routineId int) *WorkRoutine {
+// NewWorkRoutine returns a WorkRoutine with a name and an ID
+func NewWorkRoutine(routinePool *RoutinePool, routineID int) *WorkRoutine {
 	workRoutine := &WorkRoutine{
-		workRoutineName: routinePool.poolConfig.RoutinePoolName + "-WorkRoutine-" + strconv.Itoa(routineId),
+		workRoutineName: routinePool.poolConfig.RoutinePoolName + "-WorkRoutine-" + strconv.Itoa(routineID),
 		routinePool:     routinePool,
 	}
 	routinePool.workRoutines[workRoutine.workRoutineName] = workRoutine
@@ -260,22 +276,26 @@ func (workRoutine *WorkRoutine) endJobTime() {
 	}
 }
 
-func (routinePool *RoutinePool) PerformanceStats() {
-	routinePool.log("QueuedWork : " + strconv.Itoa(int(routinePool.GetQueuedWork())))
-	routinePool.log("ActiveRoutines : " + strconv.Itoa(int(routinePool.GetActiveRoutines())))
+// PerformanceStats prints the performance stats related to the RoutinePool
+func (routPool *RoutinePool) PerformanceStats() {
+	routPool.log("QueuedWork : " + strconv.Itoa(int(routPool.GetQueuedWork())))
+	routPool.log("ActiveRoutines : " + strconv.Itoa(int(routPool.GetActiveRoutines())))
 
-	for _, workRoutine := range routinePool.workRoutines {
-		routinePool.log(workRoutine.String())
+	for _, workRoutine := range routPool.workRoutines {
+		routPool.log(workRoutine.String())
 	}
 }
 
-func (routinePool *RoutinePool) HandleShutdown() {
-	routinePool.PerformanceStats()
+// HandleShutdown prints the performance stats of the RoutinePool
+// RoutinePool listens for shutdown by implementing the HandleShutdown of the ShutdownListener
+func (routPool *RoutinePool) HandleShutdown() {
+	routPool.PerformanceStats()
 	ShutdownRoutinePools()
 }
 
-//Public methods
+// Public methods
 
+// GetRoutinePool returns the instance of the RoutinePool corresponding to the given name
 func GetRoutinePool(routinePoolName string) *RoutinePool {
 	var toReturn *RoutinePool
 	for name, routinePool := range routinePoolMap {
@@ -286,6 +306,7 @@ func GetRoutinePool(routinePoolName string) *RoutinePool {
 	return toReturn
 }
 
+// ShutdownRoutinePools closes all the channels related to the RoutinePools present in the routinePoolMap
 func ShutdownRoutinePools() bool {
 	for name, routinePool := range routinePoolMap {
 		routinePool.log("Shutting down RoutinePool : " + name)
