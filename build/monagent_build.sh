@@ -22,7 +22,6 @@ export GO_SERVER_MONITORING_AGENT_BINARY_FILE_NAME='server-monitoring-agent'
 #Set src folder in GOPATH
 export GOPATH=$GOPATH:$WORK_GO_SERVER_MONITORING_AGENT_HOME
 
-
 buildMonAgent() {
 	echo "============================== Building Server Monitoring Agent =============================="
 	echo "GOROOT : "$GOROOT
