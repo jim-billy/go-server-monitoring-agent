@@ -69,7 +69,7 @@ func (collectorAPI *CollectorAPI) Initialize() {
 
 func (collectorAPI *CollectorAPI) loadCollectorConfig() {
 	configLoader := config.GetConfigLoader()
-	byteArr, errToReturn := configLoader.LoadBytesFromJson(agentconstants.LINUX_MONITORS_FILE_PATH)
+	byteArr, errToReturn := configLoader.LoadBytesFromJson(agentconstants.LinuxMonitorsFilePath)
 	json.Unmarshal(byteArr, &collectorAPI.LinuxMonitors)
 	agentconstants.Logger.Infof("collectorAPI : loadCollectorConfig : LinuxMonitors : ", collectorAPI.LinuxMonitors)
 	if errToReturn != nil {
