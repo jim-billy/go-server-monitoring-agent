@@ -1,12 +1,3 @@
-// Copyright 2013 Ardan Studios. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
-// Package helper provides helper functions for logging and catching panics
-// Increase file descriptors
-//		https://www.tecmint.com/increase-set-open-file-limits-in-linux/
-//		https://linoxide.com/linux-how-to/03-methods-change-number-open-file-limit-linux/
-
 package util
 
 import (
