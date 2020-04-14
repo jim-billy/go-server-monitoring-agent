@@ -303,7 +303,7 @@ func (collectedData *CollectedData) save() bool {
 
 }
 
-// GetcollectorAPI can be invoked from other packages for fetching the instance of the collectorAPI
+// GetcollectorAPI can be invoked from other packages for fetching an instance of the collectorAPI
 func GetcollectorAPI() *CollectorAPI {
 	return &collectorAPI
 }
