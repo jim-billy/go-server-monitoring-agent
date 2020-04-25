@@ -1,0 +1,10 @@
+{
+	"Default": {
+		"RoutinePoolSize": 100,
+		"MeasureTimeTakenForJobSize": 50,
+		"NumberOfUrls": 100,
+		"PingLocalHost": false,
+		"FastHttp": true,
+		"AppendWorldWideWeb": true
+	},
+}
