@@ -2,3 +2,4 @@
 /cmd/monagent/data
 /cmd/monagent/logs
 /.vscode/
+/.vscode-/
