@@ -1,18 +1,39 @@
 {
-	"Db": {
-		"Host": "localhost",
-		"User": "maintcall",
-		"Password": "vEryst0ng-paS5swordheR3",
-		"Database":  "maintcall"
-	},
-	"Listen": {
-		"Address": "*",
-		"Port": "8000"
-	},
-	"OutboundCall": {
-		"CallerID": "\"HT MAINTENANCE\" <+12483522010>",
-		"Retries": 3,
-		"SpoolPath": "/var/spool/asterisk/outgoing/"
-	},
-	"VmRoot": "/var/spool/asterisk/voicemail/default/"
+	"name" : "cpu_utilization",
+	"script" : true,
+	"command" : "metrics.sh",
+	"command_args" : "cpu_util",
+	"interval" : 10,
+	"key_value" : true,
+	"parse_impl" : "",
+	"parse_config" : [
+		{
+			"metric_name" : "cpu_instance", 
+			"parse_line" : 1,
+			"delimiter" : ":",
+			"token" : 2,
+			"counter" : false 
+		},
+		{
+			"metric_name" : "cpu_idle_percentage", 
+			"parse_line" : 2,
+			"delimiter" : ":",
+			"token" : 2,
+			"counter" : false 
+		},
+		{
+			"metric_name" : "cpu_load_percentage", 
+			"parse_line" : 3,
+			"delimiter" : ":",
+			"token" : 2,
+			"counter" : false
+		},
+		{
+			"metric_name" : "cpu_wait_percentage", 
+			"parse_line" : 4,
+			"delimiter" : ":",
+			"token" : 2,
+			"counter" : false 
+		}
+	]
 }
