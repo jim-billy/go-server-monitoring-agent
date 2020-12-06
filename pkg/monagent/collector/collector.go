@@ -2,11 +2,13 @@ package collector
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	//"fmt"
 	"strings"
 	//"strconv"
+	"github.com/gojavacoder/go-server-monitoring-agent/pkg/communication"
 	"github.com/gojavacoder/go-server-monitoring-agent/pkg/config"
 	"github.com/gojavacoder/go-server-monitoring-agent/pkg/initializer"
 	"github.com/gojavacoder/go-server-monitoring-agent/pkg/monagent/agentconstants"
@@ -53,10 +55,10 @@ type ParseConfiguration struct {
 
 // CollectedData holds the data that is collected
 type CollectedData struct {
-	Name           string
-	CollectionTime int64
-	Data           interface{}
-	Save           bool
+	Name           string      `json:"name"`
+	CollectionTime int64       `json:"collection_time"`
+	Data           interface{} `json:"data"`
+	Save           bool        `json:"-"` //Ignores this attribute while marshalling
 }
 
 // Initialize is responsible loading the data collection metrics from the linux_monitors.json and initialzing the collectorAPI
@@ -176,7 +178,16 @@ For the below conf
 
 Output will be
 
-	{"cpu_idle_percentage ":"84.1","cpu_instance ":"cpu","cpu_load_percentage ":"15.90","cpu_wait_percentage ":"0.00"}
+	{
+	"name": "cpu_utilization",
+	"collection_time": 1607271135099,
+	"data": {
+			"cpu_idle_percentage ": "96",
+			"cpu_instance ": "cpu",
+			"cpu_load_percentage ": "4.00",
+			"cpu_wait_percentage ": "0.00"
+		}
+	}
 
 */
 
@@ -228,23 +239,53 @@ func (parserAPI *ParserAPI) parseKeyValue(serverMonJob *ServerMonitoringJob) *Co
 		]
 
 	Output will be
-	"data" : [
-			{
-				"name" : "/dev",
-				"size" : "1654071296",
-				"free_space" : "1654026240"
+	{
+		"name": "disk_utilization",
+		"collection_time": 1607271133919,
+		"data": [
+		{
+			"free_space": "8252485632",
+			"name": "/dev",
+			"size": "8252485632"
 			},
 			{
-				"name" : "/run",
-				"size" : "1654071296",
-				"free_space" : "1654026240"
+			"free_space": "7807504384",
+			"name": "/dev/shm",
+			"size": "8270274560"
 			},
 			{
-				"name" : "/boot",
-				"size" : "1654071296",
-				"free_space" : "1654026240"
-			}
+			"free_space": "8259801088",
+			"name": "/run",
+			"size": "8270274560"
+			},
+			{
+			"free_space": "8270274560",
+			"name": "/sys/fs/cgroup",
+			"size": "8270274560"
+			},
+			{
+			"free_space": "25641586688",
+			"name": "/",
+			"size": "53660876800"
+			},
+			{
+			"free_space": "760909824",
+			"name": "/boot",
+			"size": "1063256064"
+			},
+			{
+			"free_space": "384930234368",
+			"name": "/home",
+			"size": "436736655360"
+			},
+			{
+			"free_space": "1653997568",
+			"name": "/run/user/1000",
+			"size": "1654054912"
+			},
+			{}
 		]
+	}
 
 */
 func (parserAPI *ParserAPI) parseAllLines(serverMonJob *ServerMonitoringJob) *CollectedData {
@@ -296,11 +337,109 @@ func (collectedData *CollectedData) getDataCollectionFileName() string {
 */
 
 func (collectedData *CollectedData) save() bool {
-	jsonString, _ := json.Marshal(collectedData.Data)
-	agentconstants.Logger.Infof("collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: " + collectedData.Name + " ::::::::::::::: " + string(jsonString))
-	util.WriteToFile(collectedData.getDataCollectionFileName(), string(jsonString))
+
+	byteJson, err := json.Marshal(collectedData)
+	if err != nil {
+		agentconstants.Logger.Infof("collectorAPI : Error while converting collected data to JSON : " + collectedData.Name + " ::::::::::::::: " + err.Error())
+	}
+	agentconstants.Logger.Infof("collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: " + collectedData.Name + " ::::::::::::::: " + string(byteJson))
+	util.WriteToFile(collectedData.getDataCollectionFileName(), string(byteJson))
+
+	switch collectedData.Name {
+	case "mem_utilization":
+		postData(byteJson, "/server/metrics/memory")
+	case "cpu_utilization":
+		postData(byteJson, "/server/metrics/cpu")
+	case "disk_utilization":
+		postData(byteJson, "/server/metrics/disk")
+	}
+	//testPostCPU()
+	//testPostDisk()
 	return true
 
+}
+
+func postData(byteJson []byte, api string) {
+	var server communication.Server
+	server.Host = "localhost"
+	server.Port = 8888
+	server.Protocol = communication.HTTP_PROTOCOL
+
+	communication.SetDefaultServer(&server)
+	connector := communication.GetConnector(communication.HTTP_PROTOCOL)
+	request := communication.NewHttpRequest(&server, nil)
+	request.Method = communication.HTTP_POST
+
+	request.Data = byteJson
+	request.Api = api
+	response := connector.SendRequest(request)
+	fmt.Println("Response ================== ", response)
+}
+
+func testPostCPU() {
+	var server communication.Server
+	server.Host = "localhost"
+	server.Port = 8888
+	server.Protocol = communication.HTTP_PROTOCOL
+
+	communication.SetDefaultServer(&server)
+	connector := communication.GetConnector(communication.HTTP_PROTOCOL)
+	request := communication.NewHttpRequest(&server, nil)
+	request.Method = communication.HTTP_POST
+	params, _ := json.Marshal((map[string]string{
+		"name":                "cpu",
+		"cpu_instance":        "cpu0",
+		"cpu_idle_percentage": "22",
+		"cpu_load_percentage": "50",
+		"cpu_wait_percentage": "15",
+	}))
+	request.Data = params
+	request.Api = "/server/metrics/cpu"
+	response := connector.SendRequest(request)
+	fmt.Println("Response ================== ", response)
+}
+
+func testPostDisk() {
+	var server communication.Server
+	server.Host = "localhost"
+	server.Port = 8888
+	server.Protocol = communication.HTTP_PROTOCOL
+
+	communication.SetDefaultServer(&server)
+	connector := communication.GetConnector(communication.HTTP_PROTOCOL)
+	request := communication.NewHttpRequest(&server, nil)
+	request.Method = communication.HTTP_POST
+	/*
+		params, _ := json.Marshal((map[string]string{
+			"name":      "disk",
+			"disk_list": "",
+		}))
+	*/
+	params := []byte(`{
+		"name": "disk",
+		"disk_list": [
+			{
+				"disk_name": "/opt",
+				"free_space": "123123",
+				"size": "333333"
+			},
+			{
+				"disk_name": "/run",
+				"free_space": "444444",
+				"size": "111111"
+			},
+			{
+				"disk_name": "/home",
+				"free_space": "888888",
+				"size": "7777777"
+			}
+		]
+	  }`)
+
+	request.Data = params
+	request.Api = "/server/metrics/disk"
+	response := connector.SendRequest(request)
+	fmt.Println("Response ================== ", response)
 }
 
 // GetcollectorAPI can be invoked from other packages for fetching an instance of the collectorAPI

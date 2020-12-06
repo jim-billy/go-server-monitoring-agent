@@ -1,52 +1,53 @@
 package main
 
 import (
-	"fmt"
-	"com/coder/communication"
 	"encoding/json"
+	"fmt"
+
+	"github.com/gojavacoder/go-server-monitoring-agent/pkg/communication"
 )
 
-func testGet(){
+func testGet() {
 	var server communication.Server
 	server.Host = "localhost"
 	server.Port = 9080
 	server.Protocol = communication.HTTP_PROTOCOL
-	
+
 	communication.SetDefaultServer(&server)
 	connector := communication.GetConnector(communication.HTTP_PROTOCOL)
 	request := communication.NewHttpRequest(&server, nil)
 	request.Method = communication.HTTP_GET
 	request.Api = "/api/monitors"
 	response := connector.SendRequest(request)
-	fmt.Println("Response ================== ",response)
+	fmt.Println("Response ================== ", response)
 }
 
-func testPost(){
+func testPost() {
 	var server communication.Server
 	server.Host = "localhost"
 	server.Port = 9080
 	server.Protocol = communication.HTTP_PROTOCOL
-	
+
 	communication.SetDefaultServer(&server)
 	connector := communication.GetConnector(communication.HTTP_PROTOCOL)
 	request := communication.NewHttpRequest(&server, nil)
 	request.Method = communication.HTTP_POST
-	params, _  := json.Marshal((map[string]string{
-		"displayName" : "One",
-		"name" : "1",
-		"type":"SERVER",
+	params, _ := json.Marshal((map[string]string{
+		"displayName": "One",
+		"name":        "1",
+		"type":        "SERVER",
 	}))
 	request.Data = params
 	request.Api = "/api/monitors"
 	response := connector.SendRequest(request)
-	fmt.Println("Response ================== ",response)
+	fmt.Println("Response ================== ", response)
 }
 
-func testSendRequest(){
-	testGet()	
+func testSendRequest() {
+	testGet()
 	testPost()
 }
 
-func main(){
+func main() {
 	testSendRequest()
 }

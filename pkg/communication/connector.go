@@ -203,7 +203,7 @@ func (httpConnector *HttpConnector) SendRequest(request Request) *Response {
 		httpRequest := request.(*HttpRequest)
 		fmt.Println("Sending request.....", request)
 		urlToGet := httpConnector.getUrl(request)
-		fmt.Println("====================== Sending GET request for the url : ", urlToGet, " =========================")
+		fmt.Println("====================== Sending", httpRequest.Method, " request for the url : ", urlToGet, " =========================")
 		dataToPost := httpRequest.Data
 		req, _ := httpConnector.getRequest(httpRequest.Method, urlToGet, bytes.NewBuffer(dataToPost))
 		httpConnector.setDefaultHeaders(req)
