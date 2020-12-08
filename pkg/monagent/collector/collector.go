@@ -202,7 +202,7 @@ func (parserAPI *ParserAPI) parseKeyValue(serverMonJob *ServerMonitoringJob) *Co
 			if strings.Index(outputLine, parseConf.MetricName) != -1 {
 				if strings.Index(outputLine, parseConf.Delimiter) != -1 {
 					metricArr := strings.Split(outputLine, parseConf.Delimiter)
-					colData[metricArr[0]] = strings.TrimSpace(metricArr[1])
+					colData[strings.TrimSpace(metricArr[0])] = strings.TrimSpace(metricArr[1])
 				}
 			}
 		}
@@ -298,16 +298,21 @@ func (parserAPI *ParserAPI) parseAllLines(serverMonJob *ServerMonitoringJob) *Co
 			continue
 		}
 		colData := make(map[string]interface{})
-		//fmt.Println("outputLine ::::::::::::::::::::: ",outputLine)
+		//fmt.Println("outputLine ::::::::::::::::::::: ", outputLine)
 		//For each output line iterate parseConfigArr, parse values, put them in a map and append it to the colDataArr list
 		for i, parseConf := range parseConfigArr {
 			if strings.Index(outputLine, parseConf.Delimiter) != -1 {
 				metricArr := strings.Split(outputLine, parseConf.Delimiter)
-				//fmt.Println(parseConf.MetricName," =============== ",metricArr[i])
-				colData[parseConf.MetricName] = strings.TrimSpace(metricArr[i])
+				//fmt.Println(parseConf.MetricName, " =============== ", metricArr[i])
+				if parseConf.MetricName != "" {
+					colData[parseConf.MetricName] = strings.TrimSpace(metricArr[i])
+				}
 			}
 		}
-		colDataArr = append(colDataArr, colData)
+		if strings.TrimSpace(outputLine) != "" {
+			colDataArr = append(colDataArr, colData)
+		}
+
 	}
 	collectedData := NewCollectedData(serverMonJob.MonitorConfig.Name, colDataArr)
 	return collectedData

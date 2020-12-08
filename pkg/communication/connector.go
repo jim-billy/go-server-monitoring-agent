@@ -201,7 +201,7 @@ func (httpConnector *HttpConnector) SendRequest(request Request) *Response {
 	var response Response
 	if httpConnector.ValidateRequest(request) {
 		httpRequest := request.(*HttpRequest)
-		fmt.Println("Sending request.....", request)
+		fmt.Println("Sending request.....", string(httpRequest.Data))
 		urlToGet := httpConnector.getUrl(request)
 		fmt.Println("====================== Sending", httpRequest.Method, " request for the url : ", urlToGet, " =========================")
 		dataToPost := httpRequest.Data
