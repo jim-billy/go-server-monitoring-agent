@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/util"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/util"
 )
 
 const EMPTY_COMMAND = "Can't execute empty command"

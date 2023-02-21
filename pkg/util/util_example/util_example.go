@@ -3,27 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
-	"runtime"
 	"time"
 
-	"github.com/jim-billy/go-server-monitoring-agent/pkg/logging"
 	"github.com/jim-billy/go-server-monitoring-agent/pkg/routinepool"
 	"github.com/jim-billy/go-server-monitoring-agent/pkg/scheduler"
 	"github.com/jim-billy/go-server-monitoring-agent/pkg/shutdown"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/util"
 )
-
-var Logger *log.Logger
-
-type TestScheduler struct{}
-
-func init() {
-	fmt.Println("Init of schedulertest")
-	runtime.GOMAXPROCS(3 * runtime.NumCPU())
-	Logger = logging.GetLogger("schedulertest", "/tmp", true)
-	//Don't set logger if you want to log to the terminal
-	//shutdown.GetShutdownHandler().Init(Logger)
-	shutdown.GetShutdownHandler().Init(nil)
-}
 
 type WebsiteJob struct {
 	Website    string
@@ -46,6 +32,8 @@ func (websiteJob *WebsiteJob) GetID() int {
 	return websiteJob.Id
 }
 
+type TestScheduler struct{}
+
 func (TestScheduler) testScheduler() {
 	var sched *scheduler.Scheduler
 	sched = scheduler.GetScheduler("DataCollectionScheduler")
@@ -60,13 +48,14 @@ func (TestScheduler) testScheduler() {
 }
 
 func (testScheduler TestScheduler) HandleShutdown() {
-	Logger.Println("HandleShutdown of TestScheduler called....")
+	log.Println("HandleShutdown of TestScheduler called....")
 	//testScheduler.printSchedulerPerformanceStats()
 }
 
-func (TestScheduler) printSchedulerPerformanceStats() {
-	sched := scheduler.GetScheduler("DataCollectionScheduler")
-	sched.PerformanceStats(sched.GetName())
+func withError() {
+	defer util.CatchPanic(nil, "WorkRoutine", "withError")
+	var job *WebsiteJob
+	fmt.Println(job.Id)
 }
 
 func main() {
@@ -75,5 +64,6 @@ func main() {
 	testSch.testScheduler()
 	//Register this scheduler for shutdown notification to call HandleShutdown() by the shutdown module
 	shutdown.AddListener(testSch)
+	withError()
 	shutdown.Wait()
 }

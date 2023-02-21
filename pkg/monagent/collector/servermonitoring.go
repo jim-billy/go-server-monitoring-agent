@@ -1,10 +1,10 @@
 package collector
 
 import (
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/executor"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/initializer"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/monagent/agentconstants"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/routinepool"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/executor"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/initializer"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/monagent/agentconstants"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/routinepool"
 )
 
 // ServerMonitoringJob represents the details of the job that has been scheduled
@@ -21,7 +21,7 @@ func (serverMonJob *ServerMonitoringJob) DoJob(routinePool *routinepool.RoutineP
 	jobResult := new(routinepool.JobResult)
 	serverMonJob.ResultData = jobResult
 	exec := new(executor.Executor)
-	agentconstants.Logger.Infof("============================== DoJob : Collecting data : ", linuxmonitor)
+	agentconstants.Logger.Println("============================== DoJob : Collecting data : ", linuxmonitor)
 	if linuxmonitor.Script {
 		agentScriptFilePath := initializer.GetAgentScriptsDir() + "/" + linuxmonitor.Command
 		exec.SetCommand(agentScriptFilePath)

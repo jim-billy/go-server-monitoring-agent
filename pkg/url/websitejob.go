@@ -1,8 +1,8 @@
 package url
 
 import (
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/logging"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/routinepool"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/logging"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/routinepool"
 	//"fmt"
 )
 
@@ -15,7 +15,7 @@ type WebsiteJob struct {
 
 func (websiteJob WebsiteJob) DoJob(routinePool *routinepool.RoutinePool) {
 	Logger := logging.GetLogger("url_crawl_agent", "/tmp", true)
-	//Logger.Infof("============================== DoJob : Collecting data for Website : %v \n", websiteJob.Website)
+	//Logger.Println("============================== DoJob : Collecting data for Website : %v \n", websiteJob.Website)
 	jobResult := new(routinepool.JobResult)
 	if true {
 		//fmt.Println("Data collection using fasthttp")
@@ -38,8 +38,8 @@ func (websiteJob WebsiteJob) DoJob(routinePool *routinepool.RoutinePool) {
 	//         return;
 	//     }
 	//fmt.Println("Collected data : Id : %d, website : %s, Status code : %d : ",websiteJob.Id, websiteJob.Website, urlMet.StatusCode)
-	Logger.Infof("Collected data : Id : %d, website : %s, Status code : %d : ", websiteJob.Id, websiteJob.Website, urlMet.StatusCode)
-	//Logger.Infof("=========================== Collected data === %d === JobId : %d, website : %s, Status code : %d, data : %s : ",totalUrlCounter, websiteJob.Id, urlMet.Url, urlMet.StatusCode, urlMet)
+	Logger.Println("Collected data : Id : %d, website : %s, Status code : %d : ", websiteJob.Id, websiteJob.Website, urlMet.StatusCode)
+	//Logger.Println("=========================== Collected data === %d === JobId : %d, website : %s, Status code : %d, data : %s : ",totalUrlCounter, websiteJob.Id, urlMet.Url, urlMet.StatusCode, urlMet)
 	routinePool.GetCompletedJobsChannel() <- websiteJob
 
 }

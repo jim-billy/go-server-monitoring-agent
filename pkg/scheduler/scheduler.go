@@ -1,12 +1,11 @@
-// Package for scheduling jobs at specified time.
 package scheduler
 
 import (
 	//"fmt"
+	"log"
 	"time"
 
-	"github.com/chasex/glog"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/routinepool"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/routinepool"
 )
 
 type ScheduleTaskType int
@@ -70,7 +69,7 @@ func (schTask *ScheduleTask) GetJob() routinepool.Job {
 type Scheduler struct {
 	name        string
 	routinePool *routinepool.RoutinePool
-	logger      *glog.Logger
+	logger      *log.Logger
 }
 
 func (sch *Scheduler) SetName(name string) {
@@ -81,12 +80,12 @@ func (sch *Scheduler) GetName() string {
 	return sch.name
 }
 
-func (sch *Scheduler) SetLogger(logger *glog.Logger) {
+func (sch *Scheduler) SetLogger(logger *log.Logger) {
 	sch.logger = logger
 	sch.routinePool.SetLogger(logger)
 }
 
-func (sch *Scheduler) GetLogger() *glog.Logger {
+func (sch *Scheduler) GetLogger() *log.Logger {
 	return sch.logger
 }
 
@@ -101,16 +100,16 @@ func (sch *Scheduler) Schedule(schTask ScheduleTask) {
 				case <-done:
 					return
 				case t := <-ticker.C:
-					sch.logger.Infof("Scheduler : Schedule : ============================ Sending the job to the worker : %v %v", schTask.scheduleJob, t)
+					log.Printf("Scheduler : Schedule : ============================ Sending the job to the worker : %v %v", schTask.scheduleJob, t)
 					sch.routinePool.ExecuteJob(schTask.scheduleJob)
 				}
 			}
 		}()
 	} else if schTask.taskType == ONE_TIME_TASK {
-		sch.logger.Infof("Scheduler : Schedule : ONE_TIME_TASK : ============================ Sending the job to the worker : %v", schTask.scheduleJob)
+		log.Printf("Scheduler : Schedule : ONE_TIME_TASK : ============================ Sending the job to the worker : %v", schTask.scheduleJob)
 		sch.routinePool.ExecuteJob(schTask.scheduleJob)
 	} else {
-		sch.logger.Infof("Scheduler : Schedule : Unknown task type in the input ScheduleTask : %v", schTask)
+		log.Printf("Scheduler : Schedule : Unknown task type in the input ScheduleTask : %v", schTask)
 	}
 
 }

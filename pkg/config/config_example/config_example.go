@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/config"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/config"
 )
 
 func main() {

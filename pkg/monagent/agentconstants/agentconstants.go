@@ -1,9 +1,9 @@
 package agentconstants
 
 import (
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/initializer"
+	"log"
 
-	"github.com/chasex/glog"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/initializer"
 )
 
 const (
@@ -16,10 +16,10 @@ const (
 )
 
 // Logger stores the instance of the logger
-var Logger *glog.Logger
+var Logger *log.Logger
 
 // ErrorLogger stores the instance of the error logger
-var ErrorLogger *glog.Logger
+var ErrorLogger *log.Logger
 
 // AgentConfFilePath denotes the configuration file path
 var AgentConfFilePath string

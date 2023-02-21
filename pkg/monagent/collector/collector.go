@@ -8,12 +8,12 @@ import (
 	//"fmt"
 	"strings"
 	//"strconv"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/communication"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/config"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/initializer"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/monagent/agentconstants"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/scheduler"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/util"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/communication"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/config"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/initializer"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/monagent/agentconstants"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/scheduler"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/util"
 )
 
 var collectorAPI CollectorAPI
@@ -63,7 +63,7 @@ type CollectedData struct {
 
 // Initialize is responsible loading the data collection metrics from the linux_monitors.json and initialzing the collectorAPI
 func (collectorAPI *CollectorAPI) Initialize() {
-	agentconstants.Logger.Infof("collectorAPI : Initialize : Initializing collectorAPI")
+	agentconstants.Logger.Println("collectorAPI : Initialize : Initializing collectorAPI")
 	monitorNameVsConfigMap = make(map[string]LinuxMonitor)
 	metricNameVsParseConfigMap = make(map[string]ParseConfiguration)
 	collectorAPI.loadCollectorConfig()
@@ -73,13 +73,13 @@ func (collectorAPI *CollectorAPI) loadCollectorConfig() {
 	configLoader := config.GetConfigLoader()
 	byteArr, errToReturn := configLoader.LoadBytesFromJson(agentconstants.LinuxMonitorsFilePath)
 	json.Unmarshal(byteArr, &collectorAPI.LinuxMonitors)
-	agentconstants.Logger.Infof("collectorAPI : loadCollectorConfig : LinuxMonitors : ", collectorAPI.LinuxMonitors)
+	agentconstants.Logger.Println("collectorAPI : loadCollectorConfig : LinuxMonitors : ", collectorAPI.LinuxMonitors)
 	if errToReturn != nil {
-		agentconstants.Logger.Infof("collectorAPI : loadCollectorConfig : Error while loading CollectorConfig : ", errToReturn)
+		agentconstants.Logger.Println("collectorAPI : loadCollectorConfig : Error while loading CollectorConfig : ", errToReturn)
 	} else {
 		for index := range collectorAPI.LinuxMonitors {
 			linuxMonitor := collectorAPI.LinuxMonitors[index]
-			agentconstants.Logger.Infof("collectorAPI : loadCollectorConfig : "+linuxMonitor.Name, " :::::::: ", linuxMonitor.Interval)
+			agentconstants.Logger.Println("collectorAPI : loadCollectorConfig : "+linuxMonitor.Name, " :::::::: ", linuxMonitor.Interval)
 			monitorNameVsConfigMap[linuxMonitor.Name] = linuxMonitor
 			parseConfigArr := linuxMonitor.ParseConfig
 			for _, parseConfig := range parseConfigArr {
@@ -91,7 +91,7 @@ func (collectorAPI *CollectorAPI) loadCollectorConfig() {
 
 // ScheduleDataCollection is responsible for scheduling the metrics defined in linux_monitors.json based on the time interval configured.
 func (collectorAPI *CollectorAPI) ScheduleDataCollection() {
-	agentconstants.Logger.Infof("collectorAPI : ScheduleDataCollection : Scheduling data collection")
+	agentconstants.Logger.Println("collectorAPI : ScheduleDataCollection : Scheduling data collection")
 	var sched *scheduler.Scheduler
 	sched = scheduler.GetScheduler("DataCollectionScheduler")
 	sched.SetLogger(agentconstants.Logger)
@@ -110,9 +110,9 @@ func (collectorAPI *CollectorAPI) ScheduleDataCollection() {
 //ParseAndSave is responsible for parsing and saving the collected data
 func (collectorAPI *CollectorAPI) ParseAndSave(serverMonJob *ServerMonitoringJob) {
 	var collectedData *CollectedData
-	agentconstants.Logger.Infof("collectorAPI : ParseAndSave : Is success : ", serverMonJob.ResultData.Result["is_success"], ", Execution time : ", serverMonJob.ResultData.Result["execution_time"], ", Output ", serverMonJob.ResultData.Result["output"], ", Error : ", serverMonJob.ResultData.Result["error"])
+	agentconstants.Logger.Println("collectorAPI : ParseAndSave : Is success : ", serverMonJob.ResultData.Result["is_success"], ", Execution time : ", serverMonJob.ResultData.Result["execution_time"], ", Output ", serverMonJob.ResultData.Result["output"], ", Error : ", serverMonJob.ResultData.Result["error"])
 	collectedData = parserAPI.parse(serverMonJob)
-	agentconstants.Logger.Infof("collectorAPI : ParseAndSave : Collected data : ", collectedData)
+	agentconstants.Logger.Println("collectorAPI : ParseAndSave : Collected data : ", collectedData)
 	//GetFileHandler
 }
 
@@ -345,9 +345,9 @@ func (collectedData *CollectedData) save() bool {
 
 	byteJson, err := json.Marshal(collectedData)
 	if err != nil {
-		agentconstants.Logger.Infof("collectorAPI : Error while converting collected data to JSON : " + collectedData.Name + " ::::::::::::::: " + err.Error())
+		agentconstants.Logger.Println("collectorAPI : Error while converting collected data to JSON : " + collectedData.Name + " ::::::::::::::: " + err.Error())
 	}
-	agentconstants.Logger.Infof("collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: " + collectedData.Name + " ::::::::::::::: " + string(byteJson))
+	agentconstants.Logger.Println("collectorAPI : parseKeyValue : Collected JSON  ::::::::::::::::::::: " + collectedData.Name + " ::::::::::::::: " + string(byteJson))
 	util.WriteToFile(collectedData.getDataCollectionFileName(), string(byteJson))
 
 	switch collectedData.Name {

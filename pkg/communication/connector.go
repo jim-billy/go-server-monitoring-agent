@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,8 +14,6 @@ import (
 	//"net/url"
 	"fmt"
 	"reflect"
-
-	"github.com/chasex/glog"
 )
 
 const HTTP_PROTOCOL = "http"
@@ -135,7 +134,7 @@ type HttpRequest struct {
 	IsParseResponse bool
 	Headers         map[string]interface{}
 	CustomParams    map[string]interface{}
-	Logger          *glog.Logger
+	Logger          *log.Logger
 	LoggerName      string
 	UploadFilePath  string
 	UploadFileName  string

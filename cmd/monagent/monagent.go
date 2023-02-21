@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/initializer"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/logging"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/monagent/agentconstants"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/monagent/collector"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/shutdown"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/initializer"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/logging"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/monagent/agentconstants"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/monagent/collector"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/shutdown"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/util"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/util"
 )
 
 // Initializes the server monitoring agent

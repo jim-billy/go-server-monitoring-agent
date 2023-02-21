@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/executor"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/executor"
 )
 
 func testExecutor() {

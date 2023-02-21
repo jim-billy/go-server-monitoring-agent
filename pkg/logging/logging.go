@@ -2,6 +2,7 @@ package logging
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -10,10 +11,10 @@ import (
 	"github.com/chasex/glog"
 )
 
-var loggerMap map[string]*glog.Logger
+var loggerMap map[string]*log.Logger
 
 func init() {
-	loggerMap = make(map[string]*glog.Logger)
+	loggerMap = make(map[string]*log.Logger)
 }
 
 func deleteLog(deleteFileName string, logDir string) {
@@ -30,7 +31,7 @@ func deleteLog(deleteFileName string, logDir string) {
 	}
 }
 
-func createLogger(fname string, logDir string) *glog.Logger {
+func createLogger(fname string, logDir string) *log.Logger {
 	fmt.Println("Creating Logger : ", fname)
 	if logDir == "" {
 		logDir = "/tmp"
@@ -43,8 +44,13 @@ func createLogger(fname string, logDir string) *glog.Logger {
 		Maxsize: 5 * 1024 * 1024,
 	}
 	var err error
-	var logger *glog.Logger
-	logger, err = glog.New(options)
+	var logger *log.Logger
+	file, err := os.OpenFile(options.File, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	if err != nil {
 		panic(err)
 		//fmt.Println("createLogger error..")
@@ -55,15 +61,15 @@ func createLogger(fname string, logDir string) *glog.Logger {
 	return logger
 }
 
-func logBasicInfo(logger *glog.Logger) {
-	logger.Infof("========================== Logging started ==========================")
-	logger.Infof("No. of CPU cores : " + strconv.Itoa(runtime.NumCPU()))
+func logBasicInfo(logger *log.Logger) {
+	logger.Println("========================== Logging started ==========================")
+	logger.Println("No. of CPU cores : " + strconv.Itoa(runtime.NumCPU()))
 
 }
 
 //Public methods
 
-func GetLogger(loggerName string, logDir string, deleteOldLogs bool) *glog.Logger {
+func GetLogger(loggerName string, logDir string, deleteOldLogs bool) *log.Logger {
 	loggerToReturn := loggerMap[loggerName]
 	if loggerToReturn == nil && logDir != "" {
 		if deleteOldLogs {
@@ -71,15 +77,15 @@ func GetLogger(loggerName string, logDir string, deleteOldLogs bool) *glog.Logge
 		}
 		loggerToReturn = createLogger(loggerName, logDir)
 		logBasicInfo(loggerToReturn)
-		loggerToReturn.Flush()
+		// loggerToReturn.Flush()
 	}
 	return loggerToReturn
 }
 
 func FlushAllLogs() {
 	for logName, logger := range loggerMap {
-		logger.Infof("Flusing logger : " + logName)
-		logger.Flush()
+		logger.Println("Flusing logger : " + logName)
+		// logger.Flush()
 
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/util"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/util"
 )
 
 var agentHome string

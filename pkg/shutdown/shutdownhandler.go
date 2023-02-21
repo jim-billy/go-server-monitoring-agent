@@ -2,14 +2,13 @@ package shutdown
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/logging"
-
-	"github.com/chasex/glog"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/logging"
 )
 
 var shutdownHanler ShutdownHandler
@@ -19,7 +18,7 @@ type ShutdownHandler struct {
 	signalChan  chan os.Signal
 	cleanupDone chan bool
 	listener    []ShutdownListener
-	logger      *glog.Logger
+	logger      *log.Logger
 }
 
 // ShutdownListener should be implemented by structs which needs shutdown notification
@@ -29,7 +28,7 @@ type ShutdownListener interface {
 
 // Init initializes the ShutdownHandler
 // Don't set logger if you want to log to the terminal - shutdown.GetShutdownHandler().Init(nil)
-func (shutdownHandler *ShutdownHandler) Init(logger *glog.Logger) {
+func (shutdownHandler *ShutdownHandler) Init(logger *log.Logger) {
 	shutdownHanler.logger = logger
 	shutdownHanler.log("Init of ShutdownHandler")
 	shutdownHanler.signalChan = make(chan os.Signal, 1)
@@ -59,7 +58,7 @@ func (shutdownHandler *ShutdownHandler) log(message string) {
 	if shutdownHandler.logger == nil {
 		fmt.Println(message)
 	} else {
-		shutdownHandler.logger.Infof(message)
+		shutdownHandler.logger.Println(message)
 	}
 }
 

@@ -3,14 +3,13 @@ package routinepool
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"sync/atomic"
 	"time"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/shutdown"
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/util"
-
-	"github.com/chasex/glog"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/shutdown"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/util"
 )
 
 const (
@@ -43,7 +42,7 @@ type RoutinePoolConfig struct {
 	RoutinePoolName string
 	RoutinePoolSize int
 	QueueCapacity   int //Maximum number of jobs that can be added to the routinepool without blocking the calling thread.
-	Logger          *glog.Logger
+	Logger          *log.Logger
 }
 
 func (poolConfig RoutinePoolConfig) String() string {
@@ -120,12 +119,12 @@ func (routPool *RoutinePool) isShutdown() bool {
 }
 
 // SetLogger sets the logger for the RoutinePool
-func (routPool *RoutinePool) SetLogger(logger *glog.Logger) {
+func (routPool *RoutinePool) SetLogger(logger *log.Logger) {
 	routPool.poolConfig.Logger = logger
 }
 
 // GetLogger returns the logger used by the RoutinePool
-func (routPool *RoutinePool) GetLogger() *glog.Logger {
+func (routPool *RoutinePool) GetLogger() *log.Logger {
 	return routPool.poolConfig.Logger
 }
 
@@ -135,7 +134,7 @@ func (routPool *RoutinePool) log(message string) {
 	if logger == nil {
 		fmt.Println(message)
 	} else {
-		logger.Infof(message)
+		logger.Println(message)
 	}
 }
 

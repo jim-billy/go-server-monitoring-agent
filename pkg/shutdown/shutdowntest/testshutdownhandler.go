@@ -1,22 +1,22 @@
 package main
 
-import(
-	"com/coder/logging"
-	"com/coder/shutdown"
-	"github.com/chasex/glog"
+import (
+	"log"
+
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/logging"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/shutdown"
 )
 
-var Logger *glog.Logger
+var Logger *log.Logger
 
-type Foo struct{
-	
+type Foo struct {
 }
 
-func (Foo) HandleShutdown(){
-	Logger.Infof("HandleShutdown of Foo called....")
+func (Foo) HandleShutdown() {
+	Logger.Println("HandleShutdown of Foo called....")
 }
 
-func init(){
+func init() {
 	Logger = logging.GetLogger("test_shutdown", "/tmp", true)
 	//Don't set logger if you want to log to the terminal
 	//shutdown.GetShutdownHandler().Init(Logger)
@@ -28,9 +28,8 @@ func main() {
 	shutdown.Wait()
 }
 
-func shutdownTest(){
+func shutdownTest() {
 	foo := &Foo{}
 	shutdown.AddListener(foo)
-	
-}
 
+}

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gojavacoder/go-server-monitoring-agent/pkg/communication"
+	"github.com/jim-billy/go-server-monitoring-agent/pkg/communication"
 )
 
 func testGet() {
