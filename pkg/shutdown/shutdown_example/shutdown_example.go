@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/jim-billy/go-server-monitoring-agent/pkg/logging"
@@ -13,7 +14,7 @@ type Foo struct {
 }
 
 func (Foo) HandleShutdown() {
-	Logger.Println("HandleShutdown of Foo called....")
+	fmt.Println("HandleShutdown of Foo called....")
 }
 
 func init() {
